@@ -114,7 +114,7 @@ public class FileService {
      */
     public static String generateOutputPath(String baseOutputDir, String step, String inputFileName, String extension) {
         String fileNameWithoutExt = inputFileName.replaceAll("\\.txt$", "").replaceAll("\\.md$", "");
-        String timestamp = System.currentTimeMillis() / 1000;
+        String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
         return baseOutputDir + "/" + step + "/" + fileNameWithoutExt + "_" + step + extension;
     }
 
