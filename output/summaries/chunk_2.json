@@ -1,11 +1,34 @@
 {
   "chunk_id" : "2",
   "title" : "Chunk 2",
-  "summary" : "Cells that require lots of energy, like muscle cells and nerve cells, have many mitochondria. In fact, some cells can have hundreds or thousands of mitochondria. ### Endoplasmic Reticulum (ER) The endoplasmic reticulum is an extensive network of membranes that extends throughout the cytoplasm. **Types**: 1. **Rough ER**: Has ribosomes...",
-  "key_points" : null,
-  "workflows" : null,
-  "definitions" : null,
-  "examples" : null,
-  "exam_pointers" : null,
-  "confidence" : "low"
+  "summary" : "This chunk details key eukaryotic organelles: the Endoplasmic Reticulum (Rough ER for protein synthesis, Smooth ER for lipid synthesis and calcium storage), the Golgi apparatus (for modifying, packaging, and shipping proteins/lipids), and Lysosomes (for waste digestion and pathogen destruction). It also explains cell division, outlining the cell cycle (G1, S, G2 phases) and the four stages of mitosis (prophase, metaphase, anaphase, telophase), concluding with cytokinesis, which differs in animal and plant cells.",
+  "key_points" : [ "Eukaryotic cells contain specialized organelles like the ER, Golgi, and Lysosomes, each performing distinct functions.", "The Endoplasmic Reticulum is involved in protein and lipid synthesis, while the Golgi modifies and packages these products.", "Lysosomes act as the cell's waste disposal and defense system.", "The cell cycle (G1, S, G2) prepares a cell for division, ensuring DNA replication occurs.", "Mitosis is the nuclear division process (prophase, metaphase, anaphase, telophase) that produces two identical daughter nuclei, followed by cytokinesis, the division of the cytoplasm." ],
+  "workflows" : [ {
+    "name" : "The Cell Cycle",
+    "steps" : [ "G1 Phase (Gap 1): Cell grows, performs normal functions; DNA replication has not begun.", "S Phase (Synthesis): DNA replication occurs, duplicating each chromosome.", "G2 Phase (Gap 2): Cell continues to grow and synthesizes proteins for division." ],
+    "notes" : "Precedes cell division."
+  }, {
+    "name" : "Mitosis (Nuclear Division)",
+    "steps" : [ "Prophase: Chromosomes condense and become visible; nuclear envelope breaks down.", "Metaphase: Chromosomes line up at the cell's equator.", "Anaphase: Sister chromatids separate and move to opposite poles.", "Telophase: Nuclear envelopes reform; chromosomes decondense." ],
+    "notes" : "Follows the S phase of the cell cycle."
+  } ],
+  "definitions" : [ {
+    "term" : "Endoplasmic Reticulum (ER)",
+    "definition" : "An extensive network of membranes extending throughout the cytoplasm, involved in synthesis and transport of proteins and lipids."
+  }, {
+    "term" : "Golgi Apparatus",
+    "definition" : "A stack of flattened sacs that modifies, packages, and ships proteins and lipids to their final destinations."
+  }, {
+    "term" : "Lysosomes",
+    "definition" : "Membrane-bound sacs containing digestive enzymes, responsible for breaking down cellular waste, pathogens, and dead cell parts."
+  }, {
+    "term" : "Mitosis",
+    "definition" : "The division of the nucleus, resulting in two identical daughter nuclei, crucial for growth and repair."
+  }, {
+    "term" : "Cytokinesis",
+    "definition" : "The division of the cytoplasm, which separates the two new nuclei into distinct daughter cells."
+  } ],
+  "examples" : [ "Muscle cells and nerve cells require lots of energy and thus have many mitochondria.", "Rough ER appears bumpy due to attached ribosomes, while Smooth ER lacks ribosomes.", "In animal cells, cytokinesis involves a cleavage furrow; in plant cells, a cell plate forms." ],
+  "exam_pointers" : [ "Differentiate the functions of Rough ER (protein synthesis) and Smooth ER (lipid synthesis, calcium storage).", "Remember the Golgi apparatus as the cell's 'packaging and mailing system' for proteins and lipids.", "Identify Lysosomes as the 'garbage disposal system' that digests waste and pathogens.", "Memorize the order and key events of the Cell Cycle (G1, S, G2) and Mitosis (Prophase, Metaphase, Anaphase, Telophase).", "Understand the distinction in cytokinesis between animal cells (cleavage furrow) and plant cells (cell plate)." ],
+  "confidence" : "high"
 }

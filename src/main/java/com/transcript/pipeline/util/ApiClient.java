@@ -141,28 +141,22 @@ public class ApiClient {
 
     /**
      * Send a prompt to Google Gemini and get a text response
-     * Gemini uses OpenAI-compatible API format
+     * Uses Gemini's native API format with X-goog-api-key authentication
      */
     public String sendPromptToGemini(String systemPrompt, String userPrompt) throws IOException, InterruptedException {
-        String url = apiBase + "chat/completions?key=" + apiKey;
+        // Gemini native API endpoint format: /v1beta/models/{model}:generateContent
+        String url = apiBase + "/models/" + modelName + ":generateContent";
 
-        StringBuilder messagesJson = new StringBuilder();
-        messagesJson.append("[");
-
+        // Combine system and user prompts into a single text
+        String combinedPrompt = userPrompt;
         if (systemPrompt != null && !systemPrompt.isEmpty()) {
-            messagesJson.append("{\"role\": \"user\", \"content\": ")
-                    .append(objectMapper.writeValueAsString(systemPrompt))
-                    .append("}, ");
+            combinedPrompt = systemPrompt + "\n\n" + userPrompt;
         }
 
-        messagesJson.append("{\"role\": \"user\", \"content\": ")
-                .append(objectMapper.writeValueAsString(userPrompt))
-                .append("}]");
-
+        // Gemini native API uses "contents" with "parts" structure
         String jsonPayload = String.format(
-                "{\"model\": \"%s\", \"messages\": %s, \"temperature\": 0.7}",
-                modelName,
-                messagesJson.toString()
+                "{\"contents\": [{\"parts\": [{\"text\": %s}]}]}",
+                objectMapper.writeValueAsString(combinedPrompt)
         );
 
         return sendRequestWithRetry(url, jsonPayload, ModelType.GEMINI);
@@ -224,8 +218,9 @@ public class ApiClient {
             requestBuilder.addHeader("Authorization", "Bearer " + apiKey)
                     .addHeader("Content-Type", "application/json");
         } else if (type == ModelType.GEMINI) {
-            // Gemini uses OpenAI-compatible format
-            requestBuilder.addHeader("Content-Type", "application/json");
+            // Gemini uses X-goog-api-key header for authentication
+            requestBuilder.addHeader("X-goog-api-key", apiKey)
+                    .addHeader("Content-Type", "application/json");
         }
 
         Request request = requestBuilder.build();
@@ -257,14 +252,25 @@ public class ApiClient {
         JsonNode root = objectMapper.readTree(responseBody);
 
         if (type == ModelType.CLAUDE) {
-            // Claude API response format
+            // Claude API response format: content[0].text
             if (root.has("content") && root.get("content").isArray() && root.get("content").size() > 0) {
                 return root.get("content").get(0).get("text").asText();
             }
-        } else if (type == ModelType.OPENAI || type == ModelType.GEMINI) {
-            // OpenAI and Gemini use same response format (choices/message/content)
+        } else if (type == ModelType.OPENAI) {
+            // OpenAI response format: choices[0].message.content
             if (root.has("choices") && root.get("choices").isArray() && root.get("choices").size() > 0) {
                 return root.get("choices").get(0).get("message").get("content").asText();
+            }
+        } else if (type == ModelType.GEMINI) {
+            // Gemini native API response format: candidates[0].content.parts[0].text
+            if (root.has("candidates") && root.get("candidates").isArray() && root.get("candidates").size() > 0) {
+                JsonNode candidate = root.get("candidates").get(0);
+                if (candidate.has("content")) {
+                    JsonNode content = candidate.get("content");
+                    if (content.has("parts") && content.get("parts").isArray() && content.get("parts").size() > 0) {
+                        return content.get("parts").get(0).get("text").asText();
+                    }
+                }
             }
         }
 
