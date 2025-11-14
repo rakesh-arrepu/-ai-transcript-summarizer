@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * API client for making requests to Claude (Anthropic) and OpenAI APIs.
+ * API client for making requests to Claude (Anthropic), OpenAI, and Google Gemini APIs.
  * Handles authentication, retries, and error handling.
  */
 public class ApiClient {
@@ -29,7 +29,7 @@ public class ApiClient {
     private final ModelType modelType;
 
     public enum ModelType {
-        CLAUDE, OPENAI
+        CLAUDE, OPENAI, GEMINI
     }
 
     /**
@@ -53,6 +53,18 @@ public class ApiClient {
                 ConfigManager.get(ConfigManager.OPENAI_API_BASE),
                 ConfigManager.get(ConfigManager.MODEL_GPT),
                 ModelType.OPENAI
+        );
+    }
+
+    /**
+     * Create an API client for Google Gemini
+     */
+    public static ApiClient createGeminiClient() {
+        return new ApiClient(
+                ConfigManager.get(ConfigManager.GEMINI_API_KEY),
+                ConfigManager.get(ConfigManager.GEMINI_API_BASE),
+                ConfigManager.get(ConfigManager.MODEL_GEMINI),
+                ModelType.GEMINI
         );
     }
 
@@ -124,13 +136,42 @@ public class ApiClient {
                 messagesJson.toString()
         );
 
-        return sendRequestWithRetry(url, jsonPayload, false);
+        return sendRequestWithRetry(url, jsonPayload, ModelType.OPENAI);
+    }
+
+    /**
+     * Send a prompt to Google Gemini and get a text response
+     * Gemini uses OpenAI-compatible API format
+     */
+    public String sendPromptToGemini(String systemPrompt, String userPrompt) throws IOException, InterruptedException {
+        String url = apiBase + "chat/completions?key=" + apiKey;
+
+        StringBuilder messagesJson = new StringBuilder();
+        messagesJson.append("[");
+
+        if (systemPrompt != null && !systemPrompt.isEmpty()) {
+            messagesJson.append("{\"role\": \"user\", \"content\": ")
+                    .append(objectMapper.writeValueAsString(systemPrompt))
+                    .append("}, ");
+        }
+
+        messagesJson.append("{\"role\": \"user\", \"content\": ")
+                .append(objectMapper.writeValueAsString(userPrompt))
+                .append("}]");
+
+        String jsonPayload = String.format(
+                "{\"model\": \"%s\", \"messages\": %s, \"temperature\": 0.7}",
+                modelName,
+                messagesJson.toString()
+        );
+
+        return sendRequestWithRetry(url, jsonPayload, ModelType.GEMINI);
     }
 
     /**
      * Send a request with automatic retry on failure
      */
-    private String sendRequestWithRetry(String url, String jsonPayload, boolean isClaude)
+    private String sendRequestWithRetry(String url, String jsonPayload, ModelType type)
             throws IOException, InterruptedException {
         int maxRetries = ConfigManager.getInt(ConfigManager.MAX_RETRIES, 3);
         long retryBackoffMs = ConfigManager.getInt(ConfigManager.RETRY_BACKOFF, 1000);
@@ -139,7 +180,7 @@ public class ApiClient {
 
         for (int attempt = 0; attempt <= maxRetries; attempt++) {
             try {
-                return sendRequest(url, jsonPayload, isClaude);
+                return sendRequest(url, jsonPayload, type);
             } catch (IOException e) {
                 lastException = e;
                 logger.warn("API request failed (attempt {}/{}): {}", attempt + 1, maxRetries + 1, e.getMessage());
@@ -157,22 +198,34 @@ public class ApiClient {
     }
 
     /**
+     * Overloaded version for backwards compatibility
+     */
+    private String sendRequestWithRetry(String url, String jsonPayload, boolean isClaude)
+            throws IOException, InterruptedException {
+        ModelType type = isClaude ? ModelType.CLAUDE : ModelType.OPENAI;
+        return sendRequestWithRetry(url, jsonPayload, type);
+    }
+
+    /**
      * Send an HTTP request to the API
      */
-    private String sendRequest(String url, String jsonPayload, boolean isClaude) throws IOException {
+    private String sendRequest(String url, String jsonPayload, ModelType type) throws IOException {
         RequestBody body = RequestBody.create(jsonPayload, MediaType.get("application/json"));
 
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url)
                 .post(body);
 
-        if (isClaude) {
+        if (type == ModelType.CLAUDE) {
             requestBuilder.addHeader("Authorization", "Bearer " + apiKey)
                     .addHeader("anthropic-version", "2023-06-01")
                     .addHeader("content-type", "application/json");
-        } else {
+        } else if (type == ModelType.OPENAI) {
             requestBuilder.addHeader("Authorization", "Bearer " + apiKey)
                     .addHeader("Content-Type", "application/json");
+        } else if (type == ModelType.GEMINI) {
+            // Gemini uses OpenAI-compatible format
+            requestBuilder.addHeader("Content-Type", "application/json");
         }
 
         Request request = requestBuilder.build();
@@ -185,29 +238,45 @@ public class ApiClient {
             }
 
             String responseBody = response.body().string();
-            return parseResponse(responseBody, isClaude);
+            return parseResponse(responseBody, type);
         }
+    }
+
+    /**
+     * Overloaded version for backwards compatibility
+     */
+    private String sendRequest(String url, String jsonPayload, boolean isClaude) throws IOException {
+        ModelType type = isClaude ? ModelType.CLAUDE : ModelType.OPENAI;
+        return sendRequest(url, jsonPayload, type);
     }
 
     /**
      * Parse API response and extract text content
      */
-    private String parseResponse(String responseBody, boolean isClaude) throws IOException {
+    private String parseResponse(String responseBody, ModelType type) throws IOException {
         JsonNode root = objectMapper.readTree(responseBody);
 
-        if (isClaude) {
+        if (type == ModelType.CLAUDE) {
             // Claude API response format
             if (root.has("content") && root.get("content").isArray() && root.get("content").size() > 0) {
                 return root.get("content").get(0).get("text").asText();
             }
-        } else {
-            // OpenAI API response format
+        } else if (type == ModelType.OPENAI || type == ModelType.GEMINI) {
+            // OpenAI and Gemini use same response format (choices/message/content)
             if (root.has("choices") && root.get("choices").isArray() && root.get("choices").size() > 0) {
                 return root.get("choices").get(0).get("message").get("content").asText();
             }
         }
 
-        throw new IOException("Unexpected API response format: " + responseBody);
+        throw new IOException("Unexpected API response format for " + type + ": " + responseBody);
+    }
+
+    /**
+     * Overloaded version for backwards compatibility
+     */
+    private String parseResponse(String responseBody, boolean isClaude) throws IOException {
+        ModelType type = isClaude ? ModelType.CLAUDE : ModelType.OPENAI;
+        return parseResponse(responseBody, type);
     }
 
     /**

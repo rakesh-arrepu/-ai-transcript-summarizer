@@ -1,5 +1,6 @@
 package com.transcript.pipeline.services;
 
+import com.transcript.pipeline.config.ConfigManager;
 import com.transcript.pipeline.models.ChunkSummary;
 import com.transcript.pipeline.util.ApiClient;
 import com.transcript.pipeline.util.FileService;
@@ -12,31 +13,47 @@ import org.slf4j.LoggerFactory;
 /**
  * Service for consolidating chunk summaries into exam-ready master notes.
  * Generates master notes, quick revision sheet, and practice questions.
+ * Supports both OpenAI and Gemini models.
  */
 public class ConsolidatorService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsolidatorService.class);
 
-    private final ApiClient openAIClient;
+    private final ApiClient apiClient;
+    private final String modelType;
 
     public ConsolidatorService() {
-        this.openAIClient = ApiClient.createOpenAIClient();
+        String consolidatorModel = ConfigManager.get(ConfigManager.CONSOLIDATOR_MODEL, "gpt").toLowerCase().trim();
+        this.modelType = consolidatorModel;
+
+        if ("gemini".equals(consolidatorModel)) {
+            this.apiClient = ApiClient.createGeminiClient();
+            logger.info("Using Gemini model for consolidation");
+        } else {
+            this.apiClient = ApiClient.createOpenAIClient();
+            logger.info("Using GPT model for consolidation");
+        }
     }
 
     /**
      * Consolidate chunk summaries into master notes
      */
     public String consolidateToMasterNotes(List<ChunkSummary> summaries) throws IOException, InterruptedException {
-        logger.info("Consolidating {} chunk summaries into master notes", summaries.size());
+        logger.info("Consolidating {} chunk summaries into master notes (using {})", summaries.size(), modelType);
 
         String systemPrompt = getConsolidatorPrompt();
         String userPrompt = buildConsolidatorPayload(summaries);
 
         try {
-            String response = openAIClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            String response;
+            if ("gemini".equals(modelType)) {
+                response = apiClient.sendPromptToGemini(systemPrompt, userPrompt);
+            } else {
+                response = apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            }
             return response;
         } catch (IOException e) {
-            logger.error("Failed to consolidate using OpenAI API, creating fallback master notes", e);
+            logger.error("Failed to consolidate, creating fallback master notes", e);
             return createFallbackMasterNotes(summaries);
         }
     }
@@ -59,7 +76,11 @@ public class ConsolidatorService {
         userPrompt = TextProcessingUtil.truncateToTokens(userPrompt, 50000);
 
         try {
-            return openAIClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            if ("gemini".equals(modelType)) {
+                return apiClient.sendPromptToGemini(systemPrompt, userPrompt);
+            } else {
+                return apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            }
         } catch (IOException e) {
             logger.warn("Flashcard generation failed, creating default flashcards", e);
             return createDefaultFlashcards(summaries);
@@ -87,7 +108,11 @@ public class ConsolidatorService {
         userPrompt = TextProcessingUtil.truncateToTokens(userPrompt, 50000);
 
         try {
-            return openAIClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            if ("gemini".equals(modelType)) {
+                return apiClient.sendPromptToGemini(systemPrompt, userPrompt);
+            } else {
+                return apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            }
         } catch (IOException e) {
             logger.warn("Practice question generation failed", e);
             return createDefaultPracticeQuestions();
@@ -116,7 +141,11 @@ public class ConsolidatorService {
         userPrompt = TextProcessingUtil.truncateToTokens(userPrompt, 50000);
 
         try {
-            return openAIClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            if ("gemini".equals(modelType)) {
+                return apiClient.sendPromptToGemini(systemPrompt, userPrompt);
+            } else {
+                return apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+            }
         } catch (IOException e) {
             logger.warn("Quick revision generation failed", e);
             return createDefaultQuickRevision();
