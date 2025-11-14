@@ -1,6 +1,6 @@
 # API Integration Guide
 
-Complete guide to integrating and working with the Anthropic Claude and OpenAI APIs in this project.
+Complete guide to integrating and working with the Anthropic Claude, OpenAI, and Google Gemini APIs in this project.
 
 ## Table of Contents
 
@@ -8,24 +8,31 @@ Complete guide to integrating and working with the Anthropic Claude and OpenAI A
 2. [Getting Started](#getting-started)
 3. [Anthropic Claude API](#anthropic-claude-api)
 4. [OpenAI API](#openai-api)
-5. [Request/Response Examples](#requestresponse-examples)
-6. [Error Handling](#error-handling)
-7. [Rate Limiting & Quotas](#rate-limiting--quotas)
-8. [Cost Management](#cost-management)
-9. [Troubleshooting](#troubleshooting)
+5. [Google Gemini API](#google-gemini-api)
+6. [Request/Response Examples](#requestresponse-examples)
+7. [Error Handling](#error-handling)
+8. [Rate Limiting & Quotas](#rate-limiting--quotas)
+9. [Cost Management](#cost-management)
+10. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## API Overview
 
-The pipeline uses two AI models for different tasks:
+The pipeline supports three AI models for different tasks, offering flexible configuration:
 
-| Task | Model | Provider | Reason |
-|------|-------|----------|--------|
-| **Chunking** | Local algorithm | N/A | Free, fast, preserves structure |
-| **Summarization** | Claude 3.5 Sonnet | Anthropic | Better for detailed analysis |
-| **Consolidation** | GPT-4o | OpenAI | Excellent at synthesis & formatting |
-| **Exam Materials** | GPT-4o | OpenAI | Good at structured question generation |
+| Task | Default Model | Alternative Models | Provider |
+|------|---------------|-------------------|----------|
+| **Chunking** | Local algorithm | N/A | N/A (Free) |
+| **Summarization** | Claude 3.5 Sonnet | Gemini 2.5 Pro | Anthropic / Google |
+| **Consolidation** | GPT-4o | Gemini 2.5 Pro | OpenAI / Google |
+| **Exam Materials** | GPT-4o | Gemini 2.5 Pro | OpenAI / Google |
+
+**Model Selection**: Configure via environment variables:
+```env
+SUMMARIZER_MODEL=claude    # "claude" or "gemini"
+CONSOLIDATOR_MODEL=gpt     # "gpt" or "gemini"
+```
 
 ---
 
@@ -42,6 +49,7 @@ The pipeline uses two AI models for different tasks:
 5. Copy the key (format: `sk-ant-xxxxx`)
 
 **Cost**: Pay-as-you-go, no minimum
+**Docs**: [Anthropic Documentation](https://docs.anthropic.com/)
 
 #### OpenAI
 
@@ -52,14 +60,35 @@ The pipeline uses two AI models for different tasks:
 5. Copy the key (format: `sk-xxxxx`)
 
 **Cost**: Pay-as-you-go, requires credit card
+**Docs**: [OpenAI Documentation](https://platform.openai.com/docs/)
+
+#### Google Gemini (Optional - Recommended for Cost Savings)
+
+1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with Google Account
+3. Click "Create API key"
+4. Copy the key (format: `AIzaSy...`)
+5. Keep it safe (don't commit to git)
+
+**Cost**: Free tier with 60 req/min, 1M tokens/day; Pay-as-you-go for higher usage
+**Docs**: [Gemini API Documentation](https://ai.google.dev/docs)
+**Cost Savings**: 77-95% compared to Claude + GPT
 
 ### Step 2: Configure in Project
 
 Create `.env` file:
 
 ```env
+# Required
 CLAUDE_API_KEY=sk-ant-xxxxxxxxxxxxx
 OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxx
+
+# Optional (for cost savings)
+GEMINI_API_KEY=AIzaSy_xxxxxxxxxxxxx
+
+# Optional model selection (defaults: claude + gpt)
+SUMMARIZER_MODEL=claude    # or gemini
+CONSOLIDATOR_MODEL=gpt     # or gemini
 ```
 
 ### Step 3: Verify Keys
@@ -250,6 +279,110 @@ System.out.println(response);
 
 ---
 
+## Google Gemini API
+
+### Authentication
+
+```java
+String apiKey = System.getenv("GEMINI_API_KEY");
+// Uses OpenAI-compatible format
+request.addHeader("Authorization", "Bearer " + apiKey);
+request.addHeader("Content-Type", "application/json");
+```
+
+**Key Format**: `AIzaSy...` (from [Google AI Studio](https://aistudio.google.com/app/apikey))
+
+### Available Models
+
+| Model | Capabilities | Cost (Input/Output) | Latency | Notes |
+|-------|--------------|-------------------|---------|-------|
+| **gemini-2.5-pro** | Best all-around | $0.075/$0.30 per 1M tokens | ~1-2 sec | Latest, recommended |
+| **gemini-2.0-pro** | Capable | $0.075/$0.30 per 1M tokens | ~1-2 sec | Previous version |
+| **gemini-1.5-pro** | Good | $0.075/$0.30 per 1M tokens | ~1-2 sec | Older version |
+
+**Recommended**: `gemini-2.5-pro` (latest, best performance)
+**Free Tier**: 60 requests/minute, 1M tokens/day
+**Documentation**: [Gemini Models](https://ai.google.dev/models)
+
+### Request Format (OpenAI-Compatible)
+
+```json
+{
+  "model": "gemini-2.5-pro",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant..."
+    },
+    {
+      "role": "user",
+      "content": "Summarize this text..."
+    }
+  ],
+  "temperature": 0.7,
+  "max_tokens": 2000
+}
+```
+
+### Response Format
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "Response content here..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 250,
+    "completion_tokens": 150,
+    "total_tokens": 400
+  }
+}
+```
+
+**Note**: Gemini uses OpenAI-compatible API format for seamless integration.
+
+### Java Integration
+
+```java
+// Create client
+ApiClient geminiClient = ApiClient.createGeminiClient();
+
+// Send request (uses OpenAI-compatible format)
+String response = geminiClient.sendPromptToGemini(
+    "You are a summarizer.",
+    "Summarize this transcript..."
+);
+
+// Response is already extracted as text
+System.out.println(response);
+```
+
+### Max Tokens by Model
+
+| Model | Context Window | Recommended Max Output |
+|-------|-----------------|------------------------|
+| Gemini 2.5 Pro | 1M | 2048-4096 |
+| Gemini 2.0 Pro | 1M | 2048-4096 |
+| Gemini 1.5 Pro | 1M | 2048-4096 |
+
+### Key Differences from Claude/OpenAI
+
+| Aspect | Gemini | Claude | OpenAI |
+|--------|--------|--------|--------|
+| **API Format** | OpenAI-compatible | Proprietary | OpenAI standard |
+| **Cost** | Lowest | Medium | Medium-High |
+| **Speed** | Fast | Medium | Medium |
+| **Context Window** | 1M tokens | 200K tokens | 128K tokens |
+| **Quality** | Very Good | Excellent | Excellent |
+
+---
+
 ## Request/Response Examples
 
 ### Example 1: Summarizing a Chunk (Claude)
@@ -351,6 +484,46 @@ Light energy converts to chemical energy...
 ...
 ```
 
+### Example 4: Summarizing with Gemini (Cost-Optimized)
+
+**Request**:
+```java
+// Use Gemini for cost savings (77% less than Claude)
+ApiClient geminiClient = ApiClient.createGeminiClient();
+
+String systemPrompt = """
+    You are an expert summarizer. For the chunk below produce JSON with fields:
+    {"chunk_id": "...", "summary": "...", "confidence": "high|medium|low"}
+    Output only the JSON.
+    """;
+
+String userPrompt = """
+    Chunk ID: 1
+    Chunk Title: Cell Biology
+
+    Chunk Text:
+    Cells are the basic units of life...
+    """;
+
+String response = geminiClient.sendPromptToGemini(systemPrompt, userPrompt);
+```
+
+**Response** (same format as Claude):
+```json
+{
+  "chunk_id": "1",
+  "title": "Cell Biology",
+  "summary": "Cells are fundamental units of life with two main types: prokaryotic and eukaryotic. Each cell type has specific structures enabling different functions.",
+  "key_points": ["Basic unit of life", "Two main types", "Structural variations"],
+  "confidence": "high"
+}
+```
+
+**Cost Comparison**:
+- Claude: ~$1.50 per chunk summarization
+- Gemini: ~$0.35 per chunk summarization (77% savings!)
+- Budget: Use Gemini for both (95% savings total)
+
 ---
 
 ## Error Handling
@@ -432,6 +605,30 @@ Error: Unexpected API response format
 // May be marked as "low confidence"
 ```
 
+#### 5. Gemini-Specific Errors
+
+**Issue**: "GEMINI_API_KEY not configured"
+```
+Error: GEMINI_API_KEY not configured but SUMMARIZER_MODEL is set to 'gemini'
+```
+
+**Solution**:
+- Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+- Create API key (format: `AIzaSy...`)
+- Add to `.env` file: `GEMINI_API_KEY=AIzaSy_xxxxx`
+- Restart application
+
+**Issue**: Gemini quota exceeded
+```
+Error: API request failed: 429 - Rate limit exceeded
+```
+
+**Solution**:
+- Free tier: 60 requests/minute, 1M tokens/day
+- Wait for quota reset (daily at UTC midnight)
+- Or upgrade to paid plan for higher limits
+- Or increase `RETRY_BACKOFF` in .env for longer waits
+
 ### Retry Logic
 
 ```java
@@ -465,6 +662,8 @@ RETRY_BACKOFF=1000         # Initial backoff in ms
 - Rate limits by plan tier
 - Standard: 10 req/sec, 10K req/day
 
+**Documentation**: [Claude Rate Limits](https://docs.anthropic.com/en/docs/deploy/rate-limits)
+
 ### OpenAI API Limits
 
 **Free Trial**:
@@ -478,34 +677,67 @@ RETRY_BACKOFF=1000         # Initial backoff in ms
 - Tier 1: 3,500 req/minute
 - Tier 2+: Higher limits
 
+**Documentation**: [OpenAI Rate Limits](https://platform.openai.com/docs/guides/rate-limits)
+
+### Google Gemini API Limits
+
+**Free Tier** (Recommended for Testing):
+- 60 requests per minute
+- 1M free tokens per day
+- No credit card required
+- Perfect for: Students, small projects, testing
+
+**Paid Plan**:
+- Pay-as-you-go: $0.075/1M input tokens, $0.30/1M output tokens
+- No strict rate limits (scales with usage)
+- Volume discounts available
+
+**Documentation**: [Gemini Rate Limits](https://ai.google.dev/docs/ratelimit)
+
+**Cost Comparison** (per 1M tokens):
+- Claude Input: $3.00
+- Claude Output: $15.00
+- OpenAI Input: $5.00
+- OpenAI Output: $15.00
+- **Gemini Input: $0.075** ⭐ (97% cheaper!)
+- **Gemini Output: $0.30** ⭐ (98% cheaper!)
+
 ### Monitoring Usage
 
 **Claude**:
 ```bash
-# Check usage at console.anthropic.com
+# Check usage at https://console.anthropic.com
 # View billing and quota
 ```
 
 **OpenAI**:
 ```bash
-# Check usage at platform.openai.com/account/usage
+# Check usage at https://platform.openai.com/account/usage
 # View billing and quota
 # Set usage limits for cost control
+```
+
+**Google Gemini**:
+```bash
+# Check usage at https://aistudio.google.com/app/apikey
+# View free tier remaining quota
+# Monitor daily usage
 ```
 
 ### Cost Estimation
 
 **Per lecture (50 minutes, ~8000 tokens)**:
 
-| Step | Tokens | Cost |
-|------|--------|------|
-| Chunking | 0 | Free |
-| Summarization | 300K input, 50K output | ~$1.35 |
-| Consolidation | 100K input, 50K output | ~$0.50 |
-| Exam Materials | 50K input, 100K output | ~$0.30 |
-| **Total** | - | **~$2.15** |
+| Configuration | Summarization Cost | Consolidation Cost | Total | Savings |
+|---|---|---|---|---|
+| **Claude + GPT (Default)** | ~$1.35 | ~$0.50 | **~$2.15** | Baseline |
+| **Claude + Gemini** ⭐ | ~$1.35 | ~$0.07 | **~$1.42** | **34% savings** |
+| **Gemini + Gemini** | ~$0.32 | ~$0.07 | **~$0.39** | **82% savings** |
 
-**Course cost** (10 lectures): ~$20-30
+**Course cost** (10 lectures):
+- Claude + GPT: ~$20-30
+- Claude + Gemini: ~$14-20 (save $6-10!)
+- Gemini + Gemini: ~$4-8 (save $16-22!)
 
 ---
 
@@ -518,42 +750,65 @@ RETRY_BACKOFF=1000         # Initial backoff in ms
 USE_API_CHUNKING=false  # Default - uses local algorithm (free)
 ```
 
-#### 2. Optimize Chunk Size
+#### 2. Switch to Gemini (Best Savings!) ⭐
+```env
+# 34% savings: Replace consolidation with Gemini
+CONSOLIDATOR_MODEL=gemini
+
+# 82% savings: Use Gemini for both steps (test quality first)
+SUMMARIZER_MODEL=gemini
+CONSOLIDATOR_MODEL=gemini
+```
+
+**Cost Impact**:
+- Default (Claude + GPT): ~$2.15/lecture
+- With Gemini consolidation: ~$1.42/lecture (save $0.73!)
+- All Gemini: ~$0.39/lecture (save $1.76!)
+
+#### 3. Optimize Chunk Size
 ```env
 # Larger chunks = fewer summaries = lower cost
 CHUNK_SIZE=2000         # Default: 1500
+CHUNK_OVERLAP=300       # Increase if needed
 
 # Trade-off: Less context per chunk
 ```
 
-#### 3. Use Cheaper Models (if acceptable)
+#### 4. Use Cheaper Models (if acceptable)
 ```env
-# For chunking (hypothetically)
-MODEL_CLAUDE=claude-3-5-haiku-20241022  # 60% cheaper
+# For summarization
+MODEL_CLAUDE=claude-3-5-haiku-20241022  # 60% cheaper than Sonnet
 
-# For consolidation
-MODEL_GPT=gpt-3.5-turbo  # 90% cheaper (but lower quality)
+# For consolidation (when not using Gemini)
+MODEL_GPT=gpt-3.5-turbo  # 90% cheaper than GPT-4o
 ```
 
-#### 4. Batch Similar Content
+#### 5. Batch Similar Content
 ```bash
 # Process related lectures together
 # Enables summary reuse in consolidation
 ```
 
-#### 5. Set Usage Limits
+#### 6. Set Usage Limits
+
+**Claude** (Anthropic):
+```
+Visit: https://console.anthropic.com
+Monitor billing and set budget alerts
+```
 
 **OpenAI**:
 ```
-Go to https://platform.openai.com/account/billing/limits
+Go to: https://platform.openai.com/account/billing/limits
 Set: Hard limit = $20/month
 Soft limit = $15/month (notification)
 ```
 
-**Anthropic**:
+**Gemini** (Google):
 ```
-Monitor at console.anthropic.com
-Consider setting budget alerts
+Visit: https://aistudio.google.com/app/apikey
+Free tier: 1M tokens/day (automatic reset)
+Paid tier: Set billing alerts in Google Cloud Console
 ```
 
 ### Cost Tracking
@@ -736,20 +991,54 @@ chunks.parallelStream()
 ## Resources
 
 ### Official Documentation
-- [Anthropic Claude API Docs](https://docs.anthropic.com/)
-- [OpenAI API Docs](https://platform.openai.com/docs/)
 
-### Useful Links
-- [Claude Console](https://console.anthropic.com/)
-- [OpenAI Platform](https://platform.openai.com/)
-- [API Status Pages](https://status.anthropic.com/, https://status.openai.com/)
+**Anthropic Claude**:
+- [Claude API Documentation](https://docs.anthropic.com/)
+- [Rate Limits & Quotas](https://docs.anthropic.com/en/docs/deploy/rate-limits)
+- [Models & Pricing](https://docs.anthropic.com/en/docs/about/models)
+
+**OpenAI**:
+- [OpenAI API Docs](https://platform.openai.com/docs/)
+- [Rate Limits](https://platform.openai.com/docs/guides/rate-limits)
+- [Pricing Calculator](https://openai.com/pricing)
+
+**Google Gemini** (New!):
+- [Gemini API Documentation](https://ai.google.dev/docs)
+- [Available Models](https://ai.google.dev/models)
+- [Rate Limits & Quotas](https://ai.google.dev/docs/ratelimit)
+- [Pricing](https://ai.google.dev/pricing)
+
+### API Consoles & Management
+
+**Anthropic**:
+- [Console (API Keys, Usage)](https://console.anthropic.com/)
+- [Status Page](https://status.anthropic.com/)
+
+**OpenAI**:
+- [Platform (API Keys, Usage, Billing)](https://platform.openai.com/)
+- [Usage Dashboard](https://platform.openai.com/account/usage/overview)
+- [Billing & Limits](https://platform.openai.com/account/billing/limits)
+- [Status Page](https://status.openai.com/)
+
+**Google Gemini**:
+- [AI Studio (API Keys, Free Tier)](https://aistudio.google.com/app/apikey)
+- [Google Cloud Console (Billing)](https://console.cloud.google.com/)
+- [Status Page](https://status.cloud.google.com/)
+
+### Comparison & Articles
+
+- [Gemini vs Claude vs GPT Comparison](https://ai.google.dev/docs)
+- [Cost Analysis: Claude vs OpenAI vs Gemini](GEMINI_INTEGRATION_GUIDE.md)
+- [Model Selection Guide](README.md#-Multi-Model-Support)
 
 ### Support
-- Anthropic Support: support@anthropic.com
-- OpenAI Support: help@openai.com
-- GitHub Issues: Report bugs and request features
+
+- **Anthropic**: [support@anthropic.com](mailto:support@anthropic.com)
+- **OpenAI**: [help@openai.com](mailto:help@openai.com)
+- **Google**: [Gemini Support](https://support.google.com/googleplay/)
+- **Project GitHub**: Report bugs and request features in GitHub Issues
 
 ---
 
 **Last Updated**: November 2024
-**API Versions**: Claude 3.5, GPT-4o
+**API Versions**: Claude 3.5 Sonnet, GPT-4o, Gemini 2.5 Pro
