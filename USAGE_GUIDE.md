@@ -5,6 +5,9 @@ A step-by-step guide to using the Transcript → Exam Notes Pipeline for generat
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
+   - [Step 1: Create Configuration File](#step-1-create-configuration-file)
+   - [Step 2: Test API Keys](#step-2-test-api-keys-recommended) ⭐ **New**
+   - [Step 3: Verify Configuration](#step-3-verify-configuration)
 2. [Interactive Mode](#interactive-mode)
 3. [Step-by-Step Examples](#step-by-step-examples)
 4. [Advanced Workflows](#advanced-workflows)
@@ -39,7 +42,51 @@ cp config/.env.example .env
 # CONSOLIDATOR_MODEL=gemini
 ```
 
-#### Step 2: Verify Configuration
+#### Step 2: Test API Keys (Recommended)
+
+**Before running the pipeline, verify your API keys are working:**
+
+```bash
+# Quick test all API keys
+./test-api-keys.sh
+
+# You should see:
+# ======================
+# === Testing API Keys ===
+# Testing Claude API key...
+# ✓ Claude API key is valid and working!
+# Testing OpenAI API key...
+# ✓ OpenAI API key is valid and working!
+# Testing Gemini API key...
+# ✓ Gemini API key is valid and working!
+# ======================
+```
+
+**What this does:**
+- ✓ Tests each API key with a simple request
+- ✓ Validates your pipeline configuration
+- ✓ Detects issues before you start processing
+- ✓ Provides clear error messages if something is wrong
+
+**If a test fails:**
+```bash
+# Check the error message for details
+# Common issues:
+# - Invalid API key format
+# - Expired or revoked key
+# - Rate limit exceeded
+# - Network connection problems
+
+# Fix the issue in your .env file, then test again
+./test-api-keys.sh
+```
+
+**Alternative: Test using Java directly**
+```bash
+java -cp target/transcript-pipeline.jar com.transcript.pipeline.util.ApiKeyTester
+```
+
+#### Step 3: Verify Configuration
 
 ```bash
 # The application will verify API keys on startup

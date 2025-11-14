@@ -6,6 +6,9 @@ Complete guide to integrating and working with the Anthropic Claude, OpenAI, and
 
 1. [API Overview](#api-overview)
 2. [Getting Started](#getting-started)
+   - [Step 1: Create API Accounts](#step-1-create-api-accounts)
+   - [Step 2: Configure in Project](#step-2-configure-in-project)
+   - [Step 3: Test API Keys](#step-3-test-api-keys) ⭐ **New**
 3. [Anthropic Claude API](#anthropic-claude-api)
 4. [OpenAI API](#openai-api)
 5. [Google Gemini API](#google-gemini-api)
@@ -91,7 +94,110 @@ SUMMARIZER_MODEL=claude    # or gemini
 CONSOLIDATOR_MODEL=gpt     # or gemini
 ```
 
-### Step 3: Verify Keys
+### Step 3: Test API Keys
+
+**Before running the pipeline, test your API keys to ensure they work correctly:**
+
+#### Option 1: Using the Test Script (Recommended)
+
+```bash
+# Make the script executable (first time only)
+chmod +x test-api-keys.sh
+
+# Run the test
+./test-api-keys.sh
+```
+
+**What it does:**
+- ✓ Checks if .env file exists
+- ✓ Builds the project if needed
+- ✓ Tests each API key with a simple request
+- ✓ Validates pipeline configuration
+- ✓ Provides detailed error messages
+
+**Expected output:**
+```
+========================================
+API Key Tester
+========================================
+
+✓ Found .env file
+
+Running API key tests...
+
+=== Testing API Keys ===
+
+Testing Claude API key...
+✓ Claude API key is valid and working!
+Testing OpenAI API key...
+✓ OpenAI API key is valid and working!
+Testing Gemini API key...
+✓ Gemini API key is valid and working!
+
+=== Test Summary ===
+Claude API: ✓ WORKING
+OpenAI API: ✓ WORKING
+Gemini API: ✓ WORKING
+
+✓ At least one API key is working!
+
+=== Pipeline Configuration ===
+Summarizer Model: claude
+Consolidator Model: gpt
+✓ Pipeline is properly configured and ready to use!
+
+========================================
+✓ API Key Test Completed Successfully
+========================================
+```
+
+#### Option 2: Using Java Directly
+
+```bash
+# Build the project first
+mvn clean package
+
+# Run the API key tester
+java -cp target/transcript-pipeline.jar com.transcript.pipeline.util.ApiKeyTester
+```
+
+#### Interpreting Test Results
+
+**All tests passed ✓**
+- Your API keys are valid and working
+- You can proceed with running the pipeline
+- The selected models (SUMMARIZER_MODEL and CONSOLIDATOR_MODEL) are properly configured
+
+**Some tests failed ✗**
+- Check the error messages for specific issues
+- Common errors:
+  - **401 Unauthorized**: Invalid API key format or expired key
+  - **403 Forbidden**: API key lacks required permissions
+  - **429 Rate Limit**: Too many requests, wait and retry
+  - **Timeout**: Network issues or slow connection
+
+**Example: API key not configured**
+```
+Testing Claude API key...
+⚠ Claude API key not configured. Skipping test.
+```
+**Solution**: Add the API key to your `.env` file
+
+**Example: Invalid API key**
+```
+Testing OpenAI API key...
+✗ OpenAI API test failed: API request failed: 401 - Invalid API key
+  → Invalid API key. Please check your OPENAI_API_KEY.
+```
+**Solution**: Verify the API key is correct in `.env`
+
+**Example: Configuration mismatch**
+```
+✗ SUMMARIZER_MODEL is set to 'claude' but Claude API key is not working!
+```
+**Solution**: Either fix the Claude API key or change SUMMARIZER_MODEL to 'gemini'
+
+### Step 4: Verify Keys (Alternative Method)
 
 ```bash
 java -jar target/transcript-pipeline.jar

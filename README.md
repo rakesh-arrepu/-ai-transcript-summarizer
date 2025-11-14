@@ -49,7 +49,55 @@ cp config/.env.example .env
 # CONSOLIDATOR_MODEL=gemini
 ```
 
-### 3. Build Project
+### 3. Test API Keys (Recommended)
+
+Before running the full pipeline, verify your API keys are working:
+
+```bash
+# Make the test script executable (first time only)
+chmod +x test-api-keys.sh
+
+# Run the API key tests
+./test-api-keys.sh
+```
+
+The test script will:
+- ✓ Check if your .env file exists
+- ✓ Build the project if needed
+- ✓ Test each configured API key (Claude, OpenAI, Gemini)
+- ✓ Verify your pipeline configuration is valid
+- ✓ Provide detailed error messages if any issues are found
+
+**Alternative: Test using Java directly**
+```bash
+# Build the project first
+mvn clean package
+
+# Run the API key tester
+java -cp target/transcript-pipeline.jar com.transcript.pipeline.util.ApiKeyTester
+```
+
+**Expected output:**
+```
+=== Testing API Keys ===
+
+Testing Claude API key...
+✓ Claude API key is valid and working!
+Testing OpenAI API key...
+✓ OpenAI API key is valid and working!
+Testing Gemini API key...
+✓ Gemini API key is valid and working!
+
+=== Test Summary ===
+Claude API: ✓ WORKING
+OpenAI API: ✓ WORKING
+Gemini API: ✓ WORKING
+
+✓ At least one API key is working!
+✓ Pipeline is properly configured and ready to use!
+```
+
+### 4. Build Project
 
 ```bash
 # Build with Maven
@@ -58,7 +106,7 @@ mvn clean package
 # This creates: target/transcript-pipeline.jar
 ```
 
-### 4. Run Interactive Mode
+### 5. Run Interactive Mode
 
 ```bash
 java -jar target/transcript-pipeline.jar
@@ -69,7 +117,7 @@ Follow the menu to:
 2. Choose "Run complete pipeline"
 3. Let the tool generate all study materials
 
-### 5. Outputs
+### 6. Outputs
 
 Generated files appear in `output/`:
 ```
@@ -398,7 +446,26 @@ zip -r study_materials.zip output/
 **Solution**:
 - Verify `.env` file exists in project root
 - Check syntax: `KEY=value` (no spaces around `=`)
-- Verify keys are valid: test in Anthropic/OpenAI console
+- **Run the API key tester**: `./test-api-keys.sh`
+- Verify keys are valid: test in Anthropic/OpenAI/Gemini console
+
+**Testing your API keys:**
+```bash
+# Quick test all API keys
+./test-api-keys.sh
+
+# Or test individually using Java
+java -cp target/transcript-pipeline.jar com.transcript.pipeline.util.ApiKeyTester
+```
+
+Common error messages and solutions:
+- **401 - Invalid API key**: The API key format is incorrect or expired
+  - Claude keys should start with `sk-ant-`
+  - OpenAI keys should start with `sk-`
+  - Gemini keys should start with `AIzaSy`
+- **403 - Access forbidden**: API key doesn't have required permissions
+- **429 - Rate limit exceeded**: Too many requests, wait and try again
+- **Timeout**: Check your internet connection or increase API_TIMEOUT in .env
 
 ### API Rate Limits
 ```
