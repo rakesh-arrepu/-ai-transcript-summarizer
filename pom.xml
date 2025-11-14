@@ -58,12 +58,12 @@
             <version>${slf4j.version}</version>
         </dependency>
 
-        <!-- Environment Variables -->
+        <!-- Environment Variables 
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>java-dotenv</artifactId>
             <version>0.0.1</version>
-        </dependency>
+        </dependency> -->
 
         <!-- Command-line argument parsing -->
         <dependency>

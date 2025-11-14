@@ -201,7 +201,7 @@ RETRY_BACKOFF=1000           # Initial backoff in milliseconds
 # ============================================================================
 MODEL_CLAUDE=claude-3-5-sonnet-20241022
 MODEL_GPT=gpt-4o
-MODEL_GEMINI=gemini-2.5-pro
+MODEL_GEMINI=gemini-2.5-flash
 ```
 
 ## 💰 Cost Optimization with Gemini

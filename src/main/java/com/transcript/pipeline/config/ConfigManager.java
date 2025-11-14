@@ -121,7 +121,7 @@ public class ConfigManager {
     private static void setDefaults() {
         config.putIfAbsent(MODEL_CLAUDE, "claude-3-5-sonnet-20241022");
         config.putIfAbsent(MODEL_GPT, "gpt-4o");
-        config.putIfAbsent(MODEL_GEMINI, "gemini-2.5-pro");
+        config.putIfAbsent(MODEL_GEMINI, "gemini-2.5-flash");
         config.putIfAbsent(CLAUDE_API_BASE, "https://api.anthropic.com/v1");
         config.putIfAbsent(OPENAI_API_BASE, "https://api.openai.com/v1");
         config.putIfAbsent(GEMINI_API_BASE, "https://generativelanguage.googleapis.com/v1beta/openai/");

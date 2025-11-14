@@ -296,11 +296,11 @@ request.addHeader("Content-Type", "application/json");
 
 | Model | Capabilities | Cost (Input/Output) | Latency | Notes |
 |-------|--------------|-------------------|---------|-------|
-| **gemini-2.5-pro** | Best all-around | $0.075/$0.30 per 1M tokens | ~1-2 sec | Latest, recommended |
+| **gemini-2.5-flash** | Best all-around | $0.075/$0.30 per 1M tokens | ~1-2 sec | Latest, recommended |
 | **gemini-2.0-pro** | Capable | $0.075/$0.30 per 1M tokens | ~1-2 sec | Previous version |
 | **gemini-1.5-pro** | Good | $0.075/$0.30 per 1M tokens | ~1-2 sec | Older version |
 
-**Recommended**: `gemini-2.5-pro` (latest, best performance)
+**Recommended**: `gemini-2.5-flash` (latest, best performance)
 **Free Tier**: 60 requests/minute, 1M tokens/day
 **Documentation**: [Gemini Models](https://ai.google.dev/models)
 
@@ -308,7 +308,7 @@ request.addHeader("Content-Type", "application/json");
 
 ```json
 {
-  "model": "gemini-2.5-pro",
+  "model": "gemini-2.5-flash",
   "messages": [
     {
       "role": "system",

@@ -90,7 +90,7 @@ MODEL_GPT=gpt-4-turbo                     # More capable
 MODEL_GPT=gpt-3.5-turbo                   # Cheaper
 
 # Gemini models
-MODEL_GEMINI=gemini-2.5-pro               # Latest (recommended)
+MODEL_GEMINI=gemini-2.5-flash               # Latest (recommended)
 MODEL_GEMINI=gemini-2.0-pro               # Previous version
 MODEL_GEMINI=gemini-1.5-pro               # Older version
 ```
@@ -162,7 +162,7 @@ The pipeline uses **Gemini's OpenAI-compatible API**, which means:
 
 ```json
 {
-  "model": "gemini-2.5-pro",
+  "model": "gemini-2.5-flash",
   "messages": [
     {"role": "system", "content": "You are..."},
     {"role": "user", "content": "Summarize..."}
