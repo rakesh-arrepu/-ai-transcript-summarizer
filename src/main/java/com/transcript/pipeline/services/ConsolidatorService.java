@@ -3,6 +3,7 @@ package com.transcript.pipeline.services;
 import com.transcript.pipeline.config.ConfigManager;
 import com.transcript.pipeline.models.ChunkSummary;
 import com.transcript.pipeline.util.ApiClient;
+import com.transcript.pipeline.util.ConsoleColors;
 import com.transcript.pipeline.util.FileService;
 import com.transcript.pipeline.util.FlowsGenerator;
 import com.transcript.pipeline.util.TextProcessingUtil;
@@ -40,10 +41,21 @@ public class ConsolidatorService {
      * Consolidate chunk summaries into master notes
      */
     public String consolidateToMasterNotes(List<ChunkSummary> summaries) throws IOException, InterruptedException {
+        ConsoleColors.printSection("Consolidation Stage");
+        System.out.println(String.format("Model: %s | Input: %d summaries",
+            ConsoleColors.colorize(modelType.toUpperCase(), ConsoleColors.BOLD_CYAN),
+            summaries.size()));
+        System.out.println();
+
         logger.info("Consolidating {} chunk summaries into master notes (using {})", summaries.size(), modelType);
 
+        System.out.print("Building consolidation payload... ");
         String systemPrompt = getConsolidatorPrompt();
         String userPrompt = buildConsolidatorPayload(summaries);
+        ConsoleColors.printSuccess("Done");
+
+        System.out.print("Generating master notes (this may take 2-5 minutes)... ");
+        long startTime = System.currentTimeMillis();
 
         try {
             String response;
@@ -52,8 +64,16 @@ public class ConsolidatorService {
             } else {
                 response = apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
             }
+
+            long elapsed = System.currentTimeMillis() - startTime;
+            System.out.println();
+            ConsoleColors.printSuccess(String.format("Master notes generated in %s",
+                ConsoleColors.formatTime(elapsed)));
+
             return response;
         } catch (IOException e) {
+            System.out.println();
+            ConsoleColors.printError("Consolidation failed, creating fallback master notes");
             logger.error("Failed to consolidate, creating fallback master notes", e);
             return createFallbackMasterNotes(summaries);
         }
@@ -63,7 +83,11 @@ public class ConsolidatorService {
      * Generate flashcards from master notes
      */
     public String generateFlashcards(String masterNotes, List<ChunkSummary> summaries) throws IOException, InterruptedException {
+        ConsoleColors.printSection("Exam Materials: Flashcards");
+        System.out.print("Generating flashcards (50-100 cards)... ");
+
         logger.info("Generating flashcards from master notes");
+        long startTime = System.currentTimeMillis();
 
         String systemPrompt = """
                 You are an expert educator creating flashcard content.
@@ -77,12 +101,22 @@ public class ConsolidatorService {
         userPrompt = TextProcessingUtil.truncateToTokens(userPrompt, 50000);
 
         try {
+            String result;
             if ("gemini".equals(modelType)) {
-                return apiClient.sendPromptToGemini(systemPrompt, userPrompt);
+                result = apiClient.sendPromptToGemini(systemPrompt, userPrompt);
             } else {
-                return apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+                result = apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
             }
+
+            long elapsed = System.currentTimeMillis() - startTime;
+            System.out.println();
+            ConsoleColors.printSuccess(String.format("Flashcards generated in %s",
+                ConsoleColors.formatTime(elapsed)));
+
+            return result;
         } catch (IOException e) {
+            System.out.println();
+            ConsoleColors.printWarning("Flashcard generation failed, creating default flashcards");
             logger.warn("Flashcard generation failed, creating default flashcards", e);
             return createDefaultFlashcards(summaries);
         }
@@ -92,7 +126,11 @@ public class ConsolidatorService {
      * Generate practice questions from master notes
      */
     public String generatePracticeQuestions(String masterNotes) throws IOException, InterruptedException {
+        ConsoleColors.printSection("Exam Materials: Practice Questions");
+        System.out.print("Generating practice questions (MCQ + Short Answer + Long Form)... ");
+
         logger.info("Generating practice questions");
+        long startTime = System.currentTimeMillis();
 
         String systemPrompt = """
                 You are an expert exam question designer.
@@ -109,12 +147,22 @@ public class ConsolidatorService {
         userPrompt = TextProcessingUtil.truncateToTokens(userPrompt, 50000);
 
         try {
+            String result;
             if ("gemini".equals(modelType)) {
-                return apiClient.sendPromptToGemini(systemPrompt, userPrompt);
+                result = apiClient.sendPromptToGemini(systemPrompt, userPrompt);
             } else {
-                return apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+                result = apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
             }
+
+            long elapsed = System.currentTimeMillis() - startTime;
+            System.out.println();
+            ConsoleColors.printSuccess(String.format("Practice questions generated in %s",
+                ConsoleColors.formatTime(elapsed)));
+
+            return result;
         } catch (IOException e) {
+            System.out.println();
+            ConsoleColors.printWarning("Practice question generation failed");
             logger.warn("Practice question generation failed", e);
             return createDefaultPracticeQuestions();
         }
@@ -124,7 +172,11 @@ public class ConsolidatorService {
      * Generate quick revision sheet
      */
     public String generateQuickRevision(String masterNotes) throws IOException, InterruptedException {
+        ConsoleColors.printSection("Exam Materials: Quick Revision");
+        System.out.print("Generating quick revision sheet (1-page summary)... ");
+
         logger.info("Generating quick revision sheet");
+        long startTime = System.currentTimeMillis();
 
         String systemPrompt = """
                 You are an expert study guide creator.
@@ -142,12 +194,23 @@ public class ConsolidatorService {
         userPrompt = TextProcessingUtil.truncateToTokens(userPrompt, 50000);
 
         try {
+            String result;
             if ("gemini".equals(modelType)) {
-                return apiClient.sendPromptToGemini(systemPrompt, userPrompt);
+                result = apiClient.sendPromptToGemini(systemPrompt, userPrompt);
             } else {
-                return apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
+                result = apiClient.sendPromptToOpenAI(systemPrompt, userPrompt);
             }
+
+            long elapsed = System.currentTimeMillis() - startTime;
+            System.out.println();
+            ConsoleColors.printSuccess(String.format("Quick revision generated in %s",
+                ConsoleColors.formatTime(elapsed)));
+
+            return result;
         } catch (IOException e) {
+            System.out.println();
+            ConsoleColors.printWarning("Quick revision generation failed");
+
             logger.warn("Quick revision generation failed", e);
             return createDefaultQuickRevision();
         }
