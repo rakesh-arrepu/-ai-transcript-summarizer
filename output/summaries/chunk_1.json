@@ -1,23 +1,27 @@
 {
   "chunk_id" : "1",
-  "title" : "BIOLOGY 101: The Fundamentals of Cell Biology",
-  "summary" : "This lecture introduces the cell as the fundamental \"unit of life\" for all organisms, detailing its essential characteristics: metabolism, growth, response to environment, homeostasis, and genetic material. It distinctly categorizes cells into two main types: simpler prokaryotic cells (lacking a true nucleus, like bacteria) and more complex eukaryotic cells (possessing a true nucleus and membrane-bound organelles, like animal and plant cells). Key cellular components discussed include the protective cell membrane, the cytoplasm, and, in eukaryotes, the nucleus and mitochondria, which generate energy.",
-  "key_points" : [ "The cell is the basic unit of organization and life, performing all necessary functions for living organisms.", "Cells exhibit key characteristics: metabolism, growth/reproduction, response to environment, homeostasis, and containing genetic material (DNA).", "Life is fundamentally divided into two cell types: prokaryotic (simpler, no true nucleus) and eukaryotic (complex, true nucleus and membrane-bound organelles).", "Basic cellular structures include the cell membrane (for protection and selective permeability), cytoplasm, and in eukaryotes, the nucleus (genetic control) and mitochondria (energy production)." ],
-  "workflows" : [ ],
-  "definitions" : [ {
-    "term" : "Cell",
-    "definition" : "The smallest unit of life that can function independently and perform all the necessary functions of life; a membrane-bound compartment containing genetic material (DNA) and cytoplasm."
-  }, {
-    "term" : "Homeostasis",
-    "definition" : "The ability of cells to maintain a stable internal environment despite changes in the external environment."
-  }, {
-    "term" : "Prokaryotic Cell",
-    "definition" : "Simple, primitive cells lacking a membrane-bound nucleus, with their genetic material located in a region called the nucleoid, typically found in bacteria and archaea."
-  }, {
-    "term" : "Eukaryotic Cell",
-    "definition" : "More complex cells characterized by the presence of a true membrane-bound nucleus and other membrane-bound organelles, found in animals, plants, fungi, and protists."
+  "title" : "Fundamentals of Large Language Models - Introduction and Architecture",
+  "summary" : "This chunk introduces large language models (LLMs) as probabilistic models of text that compute probability distributions over vocabulary words. It explains that LLMs are not fundamentally different from regular language models, with 'large' referring to parameter count without agreed thresholds. The module covers three main technical areas: architecture (encoders vs decoders), methods to affect distributions (prompting and training), and decoding for text generation.",
+  "key_points" : [ "LLMs are probabilistic models that assign probabilities to words in their vocabulary", "The term 'large' in LLM refers to parameter count but has no agreed-upon threshold", "Two main architectures exist: encoders (for embeddings) and decoders (for text generation)", "Both architectures are built on transformer models from the 2017 'Attention Is All You Need' paper", "Model size is measured by number of trainable parameters, which can vary by orders of magnitude" ],
+  "workflows" : [ {
+    "name" : "LLM Text Processing",
+    "steps" : [ "Input sequence of words to LLM", "Model computes probability distribution over entire vocabulary", "Each word in vocabulary receives a probability score", "Distribution can be used for various downstream tasks" ],
+    "notes" : "Only words within the model's vocabulary receive probabilities"
   } ],
-  "examples" : [ "Single-celled bacterium (as a basic unit of life)", "E. coli (as an example of a prokaryotic cell)", "Chicken egg cell (as an example of a macroscopic cell)", "Animals, plants, fungi, and protists (as organisms made of eukaryotic cells)" ],
-  "exam_pointers" : [ "Memorize the five key characteristics that define a cell as 'alive' (Metabolism, Growth/Reproduction, Response, Homeostasis, Genetic Material).", "Be able to clearly distinguish between prokaryotic and eukaryotic cells based on the presence of a nucleus, membrane-bound organelles, and typical size.", "Recall the primary functions of the cell membrane: protection, selective permeability, communication, and recognition.", "Identify mitochondria as the 'powerhouses' of the cell, responsible for producing ATP (energy)." ],
+  "definitions" : [ {
+    "term" : "Language Model",
+    "definition" : "Probabilistic models of text that compute distributions over vocabulary words"
+  }, {
+    "term" : "Embedding",
+    "definition" : "Process of converting text sequences into numeric vector representations that capture semantic meaning"
+  }, {
+    "term" : "Encoder",
+    "definition" : "Architecture designed to encode text into embeddings or vector representations"
+  }, {
+    "term" : "Decoder",
+    "definition" : "Architecture designed to generate or decode text sequences"
+  } ],
+  "examples" : [ "Children's book sentence: 'I wrote to the zoo to send me a pet. They sent me a--' with LLM predicting next word", "BERT model being referred to as an LLM despite potentially smaller size", "Transformer architecture from 'Attention Is All You Need' (2017) as foundation for modern LLMs" ],
+  "exam_pointers" : [ "LLMs assign probabilities to ALL words in vocabulary, not just likely ones", "Encoder models produce embeddings, decoder models generate text", "All modern LLMs are built on transformer architecture from 2017", "Model size is measured by trainable parameters and varies by orders of magnitude" ],
   "confidence" : "high"
 }

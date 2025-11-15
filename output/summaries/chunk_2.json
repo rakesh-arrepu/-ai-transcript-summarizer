@@ -1,34 +1,35 @@
 {
   "chunk_id" : "2",
-  "title" : "Chunk 2",
-  "summary" : "This chunk details key eukaryotic organelles: the Endoplasmic Reticulum (Rough ER for protein synthesis, Smooth ER for lipid synthesis and calcium storage), the Golgi apparatus (for modifying, packaging, and shipping proteins/lipids), and Lysosomes (for waste digestion and pathogen destruction). It also explains cell division, outlining the cell cycle (G1, S, G2 phases) and the four stages of mitosis (prophase, metaphase, anaphase, telophase), concluding with cytokinesis, which differs in animal and plant cells.",
-  "key_points" : [ "Eukaryotic cells contain specialized organelles like the ER, Golgi, and Lysosomes, each performing distinct functions.", "The Endoplasmic Reticulum is involved in protein and lipid synthesis, while the Golgi modifies and packages these products.", "Lysosomes act as the cell's waste disposal and defense system.", "The cell cycle (G1, S, G2) prepares a cell for division, ensuring DNA replication occurs.", "Mitosis is the nuclear division process (prophase, metaphase, anaphase, telophase) that produces two identical daughter nuclei, followed by cytokinesis, the division of the cytoplasm." ],
+  "title" : "Language Model Architectures and Prompting Introduction",
+  "summary" : "This chunk covers the three main language model architectures: encoders (designed for text embedding like BERT), decoders (for text generation like GPT-4), and encoder-decoder models (for translation tasks). It introduces prompting as a method to control model output distributions and explains how decoder models generate text one token at a time through iterative processes.",
+  "key_points" : [ "Decoder models are historically larger than encoders due to text generation requirements", "Encoders convert text sequences to vector representations for classification or semantic search", "Decoder models generate text one token at a time through iterative token prediction", "Encoder-decoder models combine both architectures for sequence-to-sequence tasks like translation", "Prompting is the primary method to control model output probability distributions" ],
   "workflows" : [ {
-    "name" : "The Cell Cycle",
-    "steps" : [ "G1 Phase (Gap 1): Cell grows, performs normal functions; DNA replication has not begun.", "S Phase (Synthesis): DNA replication occurs, duplicating each chromosome.", "G2 Phase (Gap 2): Cell continues to grow and synthesizes proteins for division." ],
-    "notes" : "Precedes cell division."
+    "name" : "Semantic Search with Encoders",
+    "steps" : [ "Encode/embed each document in corpus and store in index", "Encode input snippet when query arrives", "Compare similarity between encoded input and all corpus documents", "Return most similar documents" ],
+    "notes" : "Used for document retrieval and vector search in databases"
   }, {
-    "name" : "Mitosis (Nuclear Division)",
-    "steps" : [ "Prophase: Chromosomes condense and become visible; nuclear envelope breaks down.", "Metaphase: Chromosomes line up at the cell's equator.", "Anaphase: Sister chromatids separate and move to opposite poles.", "Telophase: Nuclear envelopes reform; chromosomes decondense." ],
-    "notes" : "Follows the S phase of the cell cycle."
+    "name" : "Text Generation with Decoders",
+    "steps" : [ "Feed initial sequence of tokens to decoder model", "Model produces next token based on vocabulary probabilities", "Append generated token to input sequence", "Feed extended sequence back to model for next token", "Repeat until desired sequence length achieved" ],
+    "notes" : "Computationally expensive due to model size and iterative process"
+  }, {
+    "name" : "Translation with Encoder-Decoder",
+    "steps" : [ "Send source language tokens to encoder", "Encoder embeds all tokens and sentence", "Pass embeddings to decoder", "Decoder generates target tokens one at a time", "Each generated token feeds back for next token generation" ],
+    "notes" : "Self-referential loops in decoder for sequential generation"
   } ],
   "definitions" : [ {
-    "term" : "Endoplasmic Reticulum (ER)",
-    "definition" : "An extensive network of membranes extending throughout the cytoplasm, involved in synthesis and transport of proteins and lipids."
+    "term" : "Encoder",
+    "definition" : "Model designed to embed text by converting word sequences to vector representations for downstream tasks"
   }, {
-    "term" : "Golgi Apparatus",
-    "definition" : "A stack of flattened sacs that modifies, packages, and ships proteins and lipids to their final destinations."
+    "term" : "Decoder",
+    "definition" : "Model that takes token sequences and emits the next token based on computed vocabulary probabilities"
   }, {
-    "term" : "Lysosomes",
-    "definition" : "Membrane-bound sacs containing digestive enzymes, responsible for breaking down cellular waste, pathogens, and dead cell parts."
+    "term" : "Semantic Search",
+    "definition" : "Vector-based search method using encoded text representations to find similar documents in a corpus"
   }, {
-    "term" : "Mitosis",
-    "definition" : "The division of the nucleus, resulting in two identical daughter nuclei, crucial for growth and repair."
-  }, {
-    "term" : "Cytokinesis",
-    "definition" : "The division of the cytoplasm, which separates the two new nuclei into distinct daughter cells."
+    "term" : "Prompting",
+    "definition" : "Method to alter probability distributions of vocabulary words in language model outputs"
   } ],
-  "examples" : [ "Muscle cells and nerve cells require lots of energy and thus have many mitochondria.", "Rough ER appears bumpy due to attached ribosomes, while Smooth ER lacks ribosomes.", "In animal cells, cytokinesis involves a cleavage furrow; in plant cells, a cell plate forms." ],
-  "exam_pointers" : [ "Differentiate the functions of Rough ER (protein synthesis) and Smooth ER (lipid synthesis, calcium storage).", "Remember the Golgi apparatus as the cell's 'packaging and mailing system' for proteins and lipids.", "Identify Lysosomes as the 'garbage disposal system' that digests waste and pathogens.", "Memorize the order and key events of the Cell Cycle (G1, S, G2) and Mitosis (Prophase, Metaphase, Anaphase, Telophase).", "Understand the distinction in cytokinesis between animal cells (cleavage furrow) and plant cells (cell plate)." ],
+  "examples" : [ "BERT as an encoder model for text embedding", "GPT-4, Cohere command model, and Llama as decoder models", "English-to-foreign language translation using encoder-decoder architecture" ],
+  "exam_pointers" : [ "Decoder models generate only one token at a time through iterative processes", "Encoders are used for embedding, not text generation", "Encoder-decoder models are primarily used for sequence-to-sequence tasks", "Prompting is the primary method to control model output distributions" ],
   "confidence" : "high"
 }

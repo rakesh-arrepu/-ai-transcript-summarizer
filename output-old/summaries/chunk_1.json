@@ -1,0 +1,23 @@
+{
+  "chunk_id" : "1",
+  "title" : "BIOLOGY 101: The Fundamentals of Cell Biology",
+  "summary" : "This lecture introduces the cell as the fundamental \"unit of life\" for all organisms, detailing its essential characteristics: metabolism, growth, response to environment, homeostasis, and genetic material. It distinctly categorizes cells into two main types: simpler prokaryotic cells (lacking a true nucleus, like bacteria) and more complex eukaryotic cells (possessing a true nucleus and membrane-bound organelles, like animal and plant cells). Key cellular components discussed include the protective cell membrane, the cytoplasm, and, in eukaryotes, the nucleus and mitochondria, which generate energy.",
+  "key_points" : [ "The cell is the basic unit of organization and life, performing all necessary functions for living organisms.", "Cells exhibit key characteristics: metabolism, growth/reproduction, response to environment, homeostasis, and containing genetic material (DNA).", "Life is fundamentally divided into two cell types: prokaryotic (simpler, no true nucleus) and eukaryotic (complex, true nucleus and membrane-bound organelles).", "Basic cellular structures include the cell membrane (for protection and selective permeability), cytoplasm, and in eukaryotes, the nucleus (genetic control) and mitochondria (energy production)." ],
+  "workflows" : [ ],
+  "definitions" : [ {
+    "term" : "Cell",
+    "definition" : "The smallest unit of life that can function independently and perform all the necessary functions of life; a membrane-bound compartment containing genetic material (DNA) and cytoplasm."
+  }, {
+    "term" : "Homeostasis",
+    "definition" : "The ability of cells to maintain a stable internal environment despite changes in the external environment."
+  }, {
+    "term" : "Prokaryotic Cell",
+    "definition" : "Simple, primitive cells lacking a membrane-bound nucleus, with their genetic material located in a region called the nucleoid, typically found in bacteria and archaea."
+  }, {
+    "term" : "Eukaryotic Cell",
+    "definition" : "More complex cells characterized by the presence of a true membrane-bound nucleus and other membrane-bound organelles, found in animals, plants, fungi, and protists."
+  } ],
+  "examples" : [ "Single-celled bacterium (as a basic unit of life)", "E. coli (as an example of a prokaryotic cell)", "Chicken egg cell (as an example of a macroscopic cell)", "Animals, plants, fungi, and protists (as organisms made of eukaryotic cells)" ],
+  "exam_pointers" : [ "Memorize the five key characteristics that define a cell as 'alive' (Metabolism, Growth/Reproduction, Response, Homeostasis, Genetic Material).", "Be able to clearly distinguish between prokaryotic and eukaryotic cells based on the presence of a nucleus, membrane-bound organelles, and typical size.", "Recall the primary functions of the cell membrane: protection, selective permeability, communication, and recognition.", "Identify mitochondria as the 'powerhouses' of the cell, responsible for producing ATP (energy)." ],
+  "confidence" : "high"
+}

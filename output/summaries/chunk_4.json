@@ -1,0 +1,35 @@
+{
+  "chunk_id" : "4",
+  "title" : "Advanced Prompting Techniques and Strategies",
+  "summary" : "This chunk explores sophisticated prompting strategies including chain-of-thought, least-to-most, and concept-based prompting. These techniques improve model performance on complex tasks by breaking problems into manageable steps, mimicking human problem-solving approaches, and leveraging learned patterns from training data.",
+  "key_points" : [ "Chain-of-thought prompting breaks complex problems into step-by-step reasoning processes", "Models generate text one word at a time without high-level planning", "Least-to-most prompting solves simpler problems first to build toward complex solutions", "Concept-based prompting improves physics/chemistry performance by stating first principles", "Problem decomposition makes tasks more manageable for language models" ],
+  "workflows" : [ {
+    "name" : "Chain-of-thought prompting",
+    "steps" : [ "Present complex problem", "Prompt model to state given facts", "Have model reason through intermediate steps", "Model translates information into equations", "Model solves equations step-by-step", "Model provides final answer" ],
+    "notes" : "Mimics human problem-solving approach"
+  }, {
+    "name" : "Least-to-most prompting",
+    "steps" : [ "Start with simplest subproblem", "Solve and record solution", "Move to next difficulty level", "Use previous solutions to solve current problem", "Build incrementally to final answer" ],
+    "notes" : "Works better than chain-of-thought for certain tasks"
+  }, {
+    "name" : "Concept-based prompting",
+    "steps" : [ "Present complex physics/chemistry question", "Ask model to state relevant first principles", "Have model identify required equations", "Model applies concepts to solve problem" ],
+    "notes" : "Developed by DeepMind for scientific reasoning"
+  } ],
+  "definitions" : [ {
+    "term" : "Chain-of-thought prompting",
+    "definition" : "A prompting strategy that asks models to break down complex problems into intermediate reasoning steps"
+  }, {
+    "term" : "Least-to-most prompting",
+    "definition" : "A technique where models solve simpler problems first and use those solutions to tackle more difficult problems"
+  }, {
+    "term" : "Problem decomposition",
+    "definition" : "Breaking down complex tasks into smaller, more manageable subproblems"
+  }, {
+    "term" : "Concept-based prompting",
+    "definition" : "Having models explicitly state relevant first principles and concepts before solving scientific problems"
+  } ],
+  "examples" : [ "SQL statement generation with structured response format", "Word problem solving through step-by-step mathematical reasoning", "String concatenation task building from simple to complex word lists", "Physics/chemistry problems solved by first stating relevant equations and principles" ],
+  "exam_pointers" : [ "Models generate text one word at a time without high-level planning", "Chain-of-thought prompting works because it mimics patterns in training data or makes problems more manageable", "Least-to-most prompting outperforms chain-of-thought on certain incremental tasks", "Problem decomposition is key to improving model performance on complex reasoning tasks" ],
+  "confidence" : "high"
+}

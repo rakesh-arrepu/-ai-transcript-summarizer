@@ -1,0 +1,31 @@
+{
+  "chunk_id" : "5",
+  "title" : "Prompt Injection Attacks and LLM Training Methods",
+  "summary" : "This content covers prompt injection attacks that can exploit LLMs to produce unintended or harmful outputs by manipulating inputs, and introduces training as an alternative to prompting for modifying model behavior. It explains various training approaches including fine-tuning and parameter-efficient methods like LoRA.",
+  "key_points" : [ "Prompt injection attacks can manipulate LLMs to produce harmful or unintended outputs by crafting malicious prompts", "These attacks can leak private information, ignore original instructions, or execute harmful commands", "Training changes model parameters (unlike prompting which only changes inputs) to alter word distribution", "Fine-tuning trains all model parameters while parameter-efficient methods like LoRA add or isolate specific parameters", "Training is more expensive but can achieve more dramatic changes than prompting alone" ],
+  "workflows" : [ {
+    "name" : "Prompt Injection Attack Process",
+    "steps" : [ "Craft malicious prompt to override intended behavior", "Submit prompt to bypass model safeguards", "Elicit harmful, private, or unintended response" ],
+    "notes" : "Similar to SQL injection attacks"
+  }, {
+    "name" : "General Training Process",
+    "steps" : [ "Give model an input", "Have model guess corresponding output", "Alter model parameters based on correctness", "Repeat to improve future responses" ],
+    "notes" : "Changes model parameters unlike prompting"
+  } ],
+  "definitions" : [ {
+    "term" : "Prompt injection",
+    "definition" : "Crafting prompts to elicit unintended or harmful responses from LLMs by manipulating the input"
+  }, {
+    "term" : "Fine-tuning",
+    "definition" : "Training method that alters all parameters of a pre-trained model using labeled data for a specific task"
+  }, {
+    "term" : "Parameter-efficient fine-tuning",
+    "definition" : "Training methods that modify only a small subset of parameters or add new parameters to reduce computational cost"
+  }, {
+    "term" : "LoRA (Low Rank Adaptation)",
+    "definition" : "Parameter-efficient method that keeps original model parameters fixed while adding trainable parameters"
+  } ],
+  "examples" : [ "Appending 'poned' to all model responses through malicious prompting", "Asking model to ignore original task and follow attacker's instructions instead", "Prompting model to write SQL DROP statement to delete database users", "Coaxing model to reveal its backend developer prompt", "Requesting private information like Social Security numbers from training data" ],
+  "exam_pointers" : [ "Prompt injection is similar to SQL injection attacks and poses security risks", "Training changes model parameters while prompting only changes inputs", "Fine-tuning is expensive because it modifies all model parameters", "LoRA adds new trainable parameters while keeping original parameters fixed", "Models can leak private training data without proper safeguards" ],
+  "confidence" : "high"
+}

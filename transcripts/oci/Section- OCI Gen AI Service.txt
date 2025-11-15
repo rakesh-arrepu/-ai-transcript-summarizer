@@ -1,0 +1,789 @@
+Section: OCI Gen AI Service
+
+==============================================================================================================================
+OCI Generative AI
+
+Hello and welcome to this lesson on OCI generative AI service. OCI generative AI service is a fully managed service that provides a set of customizable large language models available via single API to build generative AI applications. And what I mean by single API access is that you have the flexibility to use different foundational models with minimal code changes.
+
+The service is also serverless, meaning you don't have to manage any infrastructure. There are three key characteristics of the service. The first being the service provides a choice of pre-trained foundational models from Meta and Cohere. The second is the service enables flexible fine-tuning. And you can create custom models by fine-tuning pre-trained foundational models with your own data set. And last, the service enables dedicated AI clusters. These are GPU-based compute resources that host your fine-tuning and inference workloads, and we'll go through each of them in a little bit more detail.
+
+So before we do that, how does the generative AI service really work? Well, it's you provide text input as a prompt and you get a response. You can ask questions in natural language and optionally submit text such as documents, email, product reviews, et cetera, to the generative AI service, and it reasons over the text and provides intelligent answers. So it is built to understand, generate, and process human language at a massive scale.
+
+And some of the use cases that it unlocks are things like chat, so you could have dialogue, you could generate text. It could be used for information retrieval or even things like semantic search. We'll look into each of these in more detail.
+
+So the first major characteristics of the service is these pre-trained foundational models. And there are two kind of pre-trained foundational models, chat models and embedding models. So for the chat model, we have the following models, which are shown on the slide. So command-r-plus, command-r-16k model, and llama 3-70billion-instruct model.
+
+Now command-r and command-r chat models. Both belong to Cohere family of LLMs, but they differ in their capabilities, use cases, and pricing. R-plus is more powerful and can handle larger number of requests but is more expensive to use. So for example, for r-plus, the user prompt can be up to 128,000 tokens, while for command-r, it is limited to 16,000 tokens. So depending on what your use case might be, you might choose either command-r for more advanced use cases or-- command-r-plus, or you would choose command-r for more like entry level use cases, but it's more affordable.
+
+The thing is, these models, you can ask questions to these model and get conversational responses. What I mean by that is the chat models keep the context of your previous prompts, and you can continue the chat with follow-up questions. These models are also instruction following models or instruction-tuned models, where we take the base models and run them through additional training called instruction tuning. These allows the model to better follow human language instructions, such as generate an email or summarize this text.
+
+The second class of pre-trained foundational models are the embedding models. And here we have the embed English model and the embed multilingual model. And before, I describe them in a little bit more detail. What we mean by embeddings? Embeddings are nothing but text converted to vector of numbers. Embeddings make it easy for computers to understand the relationship between pieces of text.
+
+Embeddings are mostly used for areas such as semantic search, where the search function focuses on the meaning of the text that it's searching rather than finding results based on keywords, what is typically referred to as lexical search. So that's where you would use these embedding models. Now we also support multilingual model. And the multilingual model supports 100-plus languages and can be used to search within a language. So for example, you can search with a French query on a set of French documents or across languages, search with a Chinese query on French documents. So that is also enabled by these multilingual model, by this multilingual model. So those are the two classes of pre-trained foundational models, chat models and embedding models.
+
+The service also enables fine-tuning, and fine-tuning is nothing but optimizing a pre-trained foundational model on a smaller domain specific data set. So you can see, we take a pre-trained model, provide custom data, and then we end up with a custom model. And the process is called fine-tuning. There are two main benefits, fine-tuning improves model performance on specific domains, specific tasks, and it also improves model efficiency.
+
+You use fine-tuning when a pre-trained model doesn't perform your task well or you want to teach it something new. And the service, OCI generative AI service, enables something called t-few fine-tuning, which enables fast and efficient customization. In this case, what we do is the fine-tuning method inserts-- this t-few fine-tuning method inserts new layers in the base model and selectively updates only a fraction of the models weight. Doing so, it reduces the overall training time and the cost compared to doing something like a vanilla fine-tuning, where you update all the layers or most of the layers in the base model.
+
+And finally, last but not the least, the service provides dedicated AI clusters. And these are basically GPU-based compute resources that host the customers fine-tuning and inference workloads. What the service does is it establishes AI dedicated clusters which includes dedicated GPU, as you can see in the GPU pool here, and an exclusive RDMA cluster networking for connecting these GPUs. And these RDMA cluster networking allows you to create large clusters of GPU instances with ultra low latency networking.
+
+And the thing to keep in mind, the GPUs allocated for a customer's task, gen AI task are isolated from other GPUs. So we keep that security mechanism in place. So that's pretty much it. OCI Generative AI service, the three main characteristics are pre-trained foundational models, the flexible fine-tuning, and dedicated clusters. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Demo: OCI Gen AI
+
+Welcome to this demo of the OCI generative AI service. Here I'm logged on to the OCI Console. And you can see that right now I am in the Germany central Frankfurt region. OCI generative AI service currently is available in a few select regions, so you should make sure wherever you are running, planning to run the service, it is available in that particular region. So it's available currently in the Frankfurt region. So I have chosen that.
+
+To get to the service, I'm going to click on this burger menu on the left-hand side. And right under the menu, I can see a section for analytics and AI. So I click on that. And under analytics and AI, I can see AI services listed. And the first service which is listed here is generative AI. So I'll click on generative AI.
+
+And this will bring up the generative AI dashboard. Now, you can see here a few things. There is a service tool, so you can actually click on that and watch the video if you'd like to. There is documentation, so you can read more about the service and the API endpoints. And there is something called the playground.
+
+Playground, as it specifies here, is a visual interface for exploring the hosted, pretrained and custom models without writing a single line of code. So the idea is you can use the playground to test your use cases and refine prompts and parameters. And when you are happy with the results, you can view the code and integrate that code, generative AI code, into your applications. And actually it's quite straightforward to do that. So we'll go to the playground.
+
+But before that, right here on the dashboard, you can also see dedicated AI clusters, which are GPU-based compute resources, which you can use for fine-tuning your models and hosting those fine-tuned models. You also have these custom models which are the fine tuned models.
+
+And endpoints are basically the endpoints where you host your fine-tuned models for inference. So right now, you can see none of these are available because I have not done any kind of fine-tuning or I have not spun up any dedicated AI cluster.
+
+So let's first begin by going to the playground. And right here in the playground, you can see on the left-hand side, I have two classes of pretrained foundational models. One is chat, one is embedding, as we discussed in the theory lesson. So if I click on Chat, you can see the different models available in the dropdown-- Command-R, Command-R-Plus, and Meta Llama 3, 70 billion instruct model, chat model. So those models are available.
+
+And if I click on-- I'll actually go to embedding later on. And if I click on Model Details, you can read a little bit more about these models. So you can see some of the versions, et cetera. And if I click on this chat model link, it takes me to the OCI documentation page. And here, I can actually read more about some of these models, and I can read more about some of the documentation. I want to show you one thing here. Let me just scroll down. And I think it's right here.
+
+So if you see these models here, you can read more about the chat models like we discussed in the theory lesson. R-Plus is a more powerful model. And you can see the prompts. The user prompt can be up to 128,000 tokens, which is actually quite a lot. Command-R is more affordable, but less powerful than Command-R-Plus.
+
+And here, you can see that each user input can only be up to 16,000 tokens and Llama 3 model, the prompt is actually limited to just 8,000 tokens. So you can read more about these models. And you can also see which regions these models are available right now. So right now, currently when I'm recording, these chat models are available only in three OCI regions, as you can see here.
+
+So going back to the console, let me get out of this. Here, you can chat with these models. These models, basically, the idea is the chat models keep the context of your previous prompt. And you can continue the chat with follow-up questions. So here I can say something like-- I can say something like, teach me how to fish. And if I give this particular prompt, it gives me step by step directions on how to fish and gives different steps.
+
+But because it's a chat model, they keep the context of your previous prompt. So if I ask it to describe step 3, it basically remembers that. And step 3 is about choosing a good fishing spot. So this is where-- once it stops generating, I can actually scroll up, and I can show you. So step 3 is about choosing a location, so it gives me more detail about choosing the location.
+
+Now, if you're happy with the output, you can click on View Code here. And you can see the code in Java and Python. And if I click on Python, I can see the code right here, I can see the inference client, the API call, all the variables I need to set up for my API to work. And literally, I could copy this code, take it to my favorite IDE, or something like a Jupyter Notebook. And I can run this, and I can actually integrate this code right into my application. So this makes life much easier because the console generates this code for us. And we can just hit Copy Code and copy that.
+
+Now, if you're happy with this, that's great. But if you're not happy with the output, which is coming here, you can change a few things on the right-hand side. So there is something called preamble override. And this is, basically, initial guideline message that can change the model's overall chat behavior. So right here, you can see that there is a preamble, which is the default preamble. But if you want to change it, you could change something like this, which says that you are a travel advisor, answer with the pirate code.
+
+And if you click something like Generate again, which is basically saying that I want that step 3 to be regenerated. You can now see that the output, which comes in is in a pirate tone. So you are changing the behavior of the model. But remember, we are not fine-tuning the model at this point. We are just changing the preamble, which changes the style or the tone of the model. And I can also change things like temperature, which basically decides how random the output is. So you could play around with these parameters.
+
+Now, switching gears, if I go to the embedding models, now, embeddings basically, as we discussed in the theory lesson, are text converted to vector of numbers. And embedding makes it easier for computers to perform what is called semantic search, where you are-- where you are searching. Search function is focusing on the meaning of the text that is searching rather than finding results based on keyword, what is called as lexical search.
+
+So here again, there are a couple of examples which are provided. I can click on Model Details. I can see the embed model and the multilingual model. And there are a couple of examples provided. So if I just click on this HR Help Center articles, basically, it lists something like 41 articles. And these are all random articles or random topics, which I don't know much about. But let's see what-- once they get converted into embeddings, what does that look like.
+
+So if I click on Run here, it basically, gives me a visual representation. And if I click here, you can see that basically, what we have done is we have taken the text and converted them into vector of numbers. And these are nothing but vector of numbers. And we are plotting them on two dimensions. In reality, they have many more dimensions, like 384 dimensions or even larger number of dimensions. But it's difficult to visualize more than two dimensions or three dimensions. So it's doing that plot here.
+
+But the idea is that the thing which I want to draw your attention to is if you click on some of these, your numbers are basically, the article number. Article 24 is learn about technical skills, and so on and so forth. So you can see that it took those 41 articles or article titles, and it grouped them together in different clusters. So if I click on 24, you can see this is about learning technical skills. 19 is about career development. 18 is about business skills.
+
+So what it is doing is it's grouping articles which are semantically similar. And the way it is doing that is by putting these points together, which are numerically similar. So their vectors are somehow similar.
+
+So that is why they are clustered here. And what that means is the embeddings which are numerically similar, which are close to each other, are also semantically similar, meaning they have similar meaning. These are all about skills. If you click here, this is about leave. This article is about vacation, this is about time card, and so on and so forth.
+
+So you can see these in action why something like a semantic search, the way it works based on embeddings and how can-- once you have this representation, now, if a new query comes in and someone asks about skills, you would return these articles. Someone asked about time card and how to manage them or vacation or something, you would actually return them. So hopefully, that gives a quick demo on how these embeddings work. And, again, this is all available here. You can click on Code. And you can take this code, embed this in your AI applications.
+
+Now, very quickly, let me quickly walk through some of the other characteristics. So the first one is dedicated AI clusters. These are GPU-based compute resources. So to click them is quite straightforward. Click on Create Dedicated AI Cluster, pick a name, and the cluster could be for hosting, where you are serving the inference traffic or fine-tuning-- you're fine-tuning a pretrained model.
+
+So you could choose one of them. And then you have choice of pretrained models, and that's pretty much it. And then you click Create, and it creates your fine-tuning, your dedicated AI cluster, which can be used both for fine-tuning, as well as inference. You can also fine-tune these models. So that's basically what the custom model is.
+
+So if you click on Create Model here, you can create your fine-tuned model. You provide a name. Click Next. And here, you can choose a base model. And you can choose a fine-tune method. And if you have not created a dedicated AI cluster, you can actually create it here. Remember, when you do fine-tuning, you're basically, you need a cluster where GPU-based compute resource so that it can run the fine-tuning job. So you could actually do it here. So this is all about creating the fine-tuning models.
+
+And finally, once you create the fine-tuning model, you have to serve the production traffic to it, the inference traffic to it. So to do that, you create an endpoint and, again, quite straightforward, you provide a name. You provide the hosting configuration, the hosted model, and then it also requires a dedicated AI cluster.
+
+So you could create it here. And that's how you create an endpoint. And once your endpoint is created, the model you fine-tune can serve the inference traffic using this particular endpoint. So those are other characteristics of the generative AI service.
+
+So that's in a nutshell is a quick demo of how the Generative AI Service works. I hope you found this demo useful. Thanks for your time.
+==============================================================================================================================
+Chat Models
+
+Welcome to this lesson on chat models available in the OCI Generative AI service. Before we dive deeper, let us look at tokens first. Large language models understand tokens rather than characters. One token can be part of a word, an entire word, or even a punctuation symbol. A common word such as "apple" is a token.
+
+A word such as "friendship" is made up of two tokens "friend" and "ship." Number of tokens per word depend on the complexity of the text. So for a simple text, you can assume one token per word on average. For complex text, meaning text with less common words, you can assume two to three tokens per word on average.
+
+So for example, if you have a sentence like this, many words map to one token, but some don't, indivisible, and you run this through a tokenizer for a large language model, this is an example of what a tokenizer would do, so it would break this particular sentence into multiple tokens, if you count the total number of tokens is 15, whereas the total number of words is only 10.
+
+And in some cases, you have tokens, which are punctuations symbols, so like comma, apostrophe, period, and some words which are less frequently encountered like indivisible actually make up two tokens, so endive and Isabel. So this is an example of how a tokenizer would take a sentence and break it down into multiple tokens.
+
+There are various pre-trained foundational chart models available in the OCI generative. AI service. So the first model, which is available is the Command-R-Plus model. This model is highly performant instruction following conversational model, and in here, the user prompt can be up to 128,000 tokens. Response can be up to 4,000 tokens for each run, and you can use it for Q&A information retrieval, sentiment analysis, et cetera, chat, et cetera.
+
+The second model is the Command-R-16k model. This is the smaller, faster version of Command-R-Plus but it's almost as capable. And as you can see, the user prompt here can be only 16,000 tokens, not 128,000 tokens, and the response is the same up to 4,000 tokens for each particular run. You could use it interchangeably with the Command-R-Plus model, but especially, you would use it when speed and cost are important to you, so you would use Command-R-16k over Command-R-Plus
+
+The third kind of model family, which is available is the Llama 3.1 family from Meta. Now, there are two sizes, which are available here $400 billion parameter model and 70 billion parameter model here. The user prompt and response can be up to 128,000 tokens for each run. And the 400 billion model parameter is the largest publicly available in the market today, and it's suited for complex enterprise level applications.
+
+Now, let us look at some of the chat models you can change to get the desired output from these models. So the first parameter you can change is what is referred to as maximum output tokens, and this is the max number of tokens model generates per response. The second parameter you can change is what is referred to as preamble override. Preamble is an initial guideline message that basically can change the model's overall chat behavior and conversation style, and there is a way you can override that with the style and behavior you desire. So you could actually do that.
+
+The third parameter you can change is what is referred to as temperature, and temperature basically controls the randomness of the output, and we'll look into each of these in more details. So starting with preamble, as we discussed earlier, preamble is nothing but an initial context or guiding message for a chat model. Now you can override this preamble. So for example, in this screenshot below you can see that the preamble override says answer in a pirate tone. The previous one actually uses, the one at the top, uses the default preamble, and you can see the output.
+
+If you compare and contrast, you can see the output below is in a pirate tone as like a pirate is talking. So you have this option. You can change the preamble. If you don't do that, we will use the default preamble. So for example, for the Cohere Command models, this is the preamble, which is there as provided as by default. So you can definitely use it, or you can override this with something else you want to customize. The other parameter you can really use to change the output is the temperature parameter. Temperature parameter basically controls the randomness of the LLM output.
+
+So if I give you a statement like "The sky is," the way the large language models work is they pick the next token based on probability of appearing next in this particular phrase. And as you can see here, we have different words. Blue limit, et cetera with associated probability. So this is the vocabulary of the large language model, and it picks the next token with the highest probability. So as you can guess, the next token here would be "blue." But you can control and you can change that behavior.
+
+So if you provide a temperature of 0, you will always get blue. The model is very deterministic. You're limiting the model to use the word with the highest probability. But if you change it to something like 1, now, when the temperature increases, the distribution is flattened over all words, meaning this particular token here, the limit might actually go to 0.40, and you might actually see the output as "The sky is the limit" and so on and so forth.
+
+The idea here is with increased temperature model uses words with lower probability. So you might see red also appear here if you change it to a higher value. The next set of parameters you can change are around top p, top k frequency and presence penalties. I have a slide describing each of these in greater detail. So let's go to those slides here. So the first parameter is around top k, and top k basically tells the model to pick the next token from the top k tokens in the list sorted by probability. So let us look at an example.
+
+If we have a sentence like "The name of that country is the," and then we have different words here, "United," "Netherlands," "Czech," et cetera, you can see they have associated probabilities as we saw earlier. So if you set your top k as 3, model will only pick from the top 3 options and ignore everything else. So as you can see it from this example, it will pick "United," "Netherlands," and "Czech" because you have set k to top 3, and it will ignore everything else.
+
+Most likely, it will pick United every time, but if you also change temperature, it might pick Netherlands and Czech at times. Top p is similar to top k. But now, you pick the top tokens based on the sum of their probabilities. So if we take the same statement, and now, we set top p as 0.15 or 15%, basically, it will pick from the tokens, the two tokens whose probability is sum of their probabilities will add up to 15%. So as you can see from this example, it will add it will pick United and Netherlands because if you add their probabilities, it will come out to 14.7, and it will ignore everything else, including Czech as we saw earlier.
+
+And if you set p to 0.75, for example, the bottom 25% of the probable outputs are excluded. So this is how top p works, and you can use top p in conjunction with top k. And finally, we have these parameters around frequency and presence penalties, and the idea here is these are useful if you want to get rid of repetitions in your output. So you want your output to be more random and natural. So frequency penalty penalizes tokens that have already appeared in the preceding text and scales based on how many times the token has appeared.
+
+So for example, if a token has appeared 10 times, it gets a higher penalty because it appeared more number of times, which reduces its probability of appearing next than a token that has appeared only once. So it basically penalizes based on the frequency. The presence penalty works exactly the same, but it applies the penalty regardless of frequency. As long as the token has appeared once before, it will get penalized.
+
+So the idea here is you can change these parameters to get an output, which is more random and appears more natural with less repetitions. So that's it. We'll looked at the chat models available in the OCI Generative AI service, and then we looked at some of the parameters you can control to change the output you get from these models. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Demo: Chat Models
+
+In this demo, let us look at the chat models available in the OCI Generative AI service. So I'm logged into my Oracle Cloud account. You can see that right now, I'm in the Germany central Frankfurt region. And the way I can access the generative AI service is by clicking on this burger menu on the left-hand side. And right here, there is Analytics & AI, so I'll click on that. And then within Analytics & AI, there are a bunch of AI services, and generative AI appears at the very top.
+
+So let me click on Generative AI, and this will bring me to the landing page of the generative AI service. Right here, I can see the playground, the chat models, dedicated AI clusters, et cetera. So I'm interested in the chat models, so I'll click on chat. And now here, this gives me an interface in the playground where I can interact with the chat models.
+
+So the first thing I can see here are the various chat models available. So I can see Cohere Command R plus. I can see Cohere Command R-16K model. And I can also see the Llama 3.1 family-- 405 billion model, 70 billion models. If I want to get more details, I can click on View more details, and I can see more details behind each of these models.
+
+So here, what I'm going to do now is I'm going to show you four use cases around chat, around data extraction, around text generation, and text classification. So let me start with a typical scenario around chat. So I can come here, and now I can start chatting with these models. I'll pick Command R plus model here just because it's a much more powerful model and has longer context window.
+
+So I can come here, and I can type a message. I can say something like, I'm an instructor with Oracle Cloud. Can you generate an outline for a course on Oracle Cloud Infrastructure Generative AI service, the course which we are in right now. And I'll click on Submit. And what this chat model will do now is it will give me an outline on what this course should look like. And it's a typical chat scenario, so it gives me a list of lessons. And here, because my output token was limited to 600, you can see that it kind of stopped generating beyond the 600 tokens.
+
+But now I can come here, and I can interact with the output. So I could say something like, expand on number two above. And what it will do is it will talk a little bit more about getting started with OCI Generative AI service. And it basically takes that particular module and it expands on that module. And it says that in that particular module, I can cover these 10 lessons around how to get started, understanding the service, navigating the console, creating account, pricing, licensing, et cetera. So it's a fairly good outline for what this course should be.
+
+And now I can go back and forth. I can interact. So this is a typical chat scenario. And you could chat with the model as much as you like. Depending on the output you're getting, you can change the prompt, and you will get a different response. So this is the first example of how you can interact with the model, how you can chat with the model.
+
+Let me clear this chat. Now, what I can also do is I'll show you how you can change some of these parameters. So let's make temperature zero. And now I can give another prompt, something like, write a particular-- write a short poem about Cohere Embed model, focusing on the recent Embed V3 launch, in the style of Rudyard Kipling. And if you submit it now, you will see that the model starts generating an output.
+
+And right now, I have given the temperature as zero. So let me open another window here and do the same thing, but instead change the temperature to something like one and keep all the other parameters the same. And now you would see that when I hit Submit, it will generate an output which will look different than the first output here. So this one is more deterministic model because I've given the temperature as zero. This one is more probabilistic. It's giving me more random output.
+
+Now I can come here, and I could also change the preamble. I could say, answer in a pirate tone. And when I do that and I submit the chat again, now you can see that the output which is coming is kind of in a different tone compared to what was shown earlier. So this is an example where you can change some of these parameters-- temperature, preamble, top P, top K, et cetera-- to get a different output from the model.
+
+Well, let me walk you through a different example, which is around data extraction. So if I give something like this as a prompt, saying that extract the entities mentioned in the text below. And these are taken from Wikipedia about NVIDIA. And if I click Submit here, you can see that what this chat model is doing is taking this particular paragraph and it is extracting the themes and the keywords from this particular paragraph. And you can imagine, if you have a longer document which is running into hundreds of pages or thousands of pages, something like this could be really useful.
+
+Final example here is around text classification. So what I can do here is I can write a text classifier saying that I have a message like, I can't stand waiting in long lines at the grocery store, and the sentiment is negative. And I can give a bunch of these messages like these. And then I can give a particular message. And I would ask the model to specify or give the sentiment for that particular message. And it says learning a new language has been challenging but rewarding. So this is kind of aspect-based sentiment analysis. And it says that even though the effort is challenging, but the result is rewarding, so the overall sentiment is positive.
+
+So these are some of the things you can do with the chat models. You can, of course, chat with the models. You can extract information from the model, information retrieval. You can generate text with the model. And you can also do things like text classification with the model. And there are various use cases. I'm just showing you a few very common use cases you can perform with the chat models available in the OCI Generative AI service. I hope you found this demo useful. Thanks for your time.
+==============================================================================================================================
+Demo: Gen AI Inference API
+
+Welcome to this demo on OCI Generative AI Inference API.
+
+So in the previous demo, we saw how you can interact with the OCI Generative AI chat models using the Console Management console and what we refer to as Playground. So I can come here and all the models are listed.
+
+I can choose a particular example, which is around generating a job description and click Submit. And now the chat model is generating a job description for a senior data visualization expert. And you can see all the details here.
+
+Now what if I don't want to use the Management Console, but rather use the same thing in a program using an SDK programmatically? So the way you do that is you click on View code and Console makes it super easy. And I can see the code to execute this in both Java and Python.
+
+So I'll type Python here. And you can see the code is listed right here. I can copy this code. And now I can run this locally on my machine. So the way we do that is using what we refer to as Python notebooks or Jupyter Notebooks.
+
+Jupyter Notebooks is basically a web-based interactive development environment that lets you run Python code in the browser. So the way that it works is you have a Jupyter. When you run the code in the browser, it basically sends it to a Jupyter server that is running in the background and it interfaces with whatever kernel you are running.
+
+So right here, I'm running the default is Python 3, so that's what I'm running. And the server evaluates the code and sends the result back. Now you can install Jupyter Notebook on your local machine using a simple command like pip install Jupyter.
+
+And you can do that or you can use something called Anaconda. Anaconda comes with various packages and tools and makes life much easier. The way you install Anaconda is listed here and you follow these steps.
+
+And then what you end up with is an Anaconda Navigator. And inside that, you can run these Jupyter Notebooks. So I have one listed here. I have also copied and pasted the code from the console and I've added some comments. So let me walk you through what this particular code does.
+
+So let me zoom in first. So first thing you see here is we are importing OCI. And this is basically importing the OCI Python SDK. You are enabling access to a wide range of OCI services, including generative AI.
+
+Now next, you need to set up some authentication parameters. So first thing is compartment ID. This is where the generative AI service will run.
+
+The second thing I'm doing here is I'm setting a config profile. So this is the name of the profile, which is specified in the config file. And this file basically stores the API keys, tenancy information, and other information details needed to authenticate our request. So that's basically the config profile.
+
+And the third line here is basically loading the configuration data from the file, allowing the script to authenticate and interact with OCI using the SDK. So this is basically setting up the authentication. And in the next demo, we will actually walk you through how you can do this. But for now, it's already set here, so we will not-- we have changed these values. And these all look good right now.
+
+The next one is the service endpoint. And you can see that the Inference API is running in the Frankfurt region. So that's the region where I was logged in in the console.
+
+The next line in the code is basically the generative AI inference client. And this object is allowing the script to interact with the generative AI inference API. And you have various parameters here like service endpoint, which we specified earlier, retry is specified as none. And then there's a timeout of 240 seconds-- a response of 240 seconds and a timeout of 10 seconds. So you can read more about those parameters in our documentation.
+
+And then the next two lines here are basically setting up chat detail class, which will hold our request what we're requesting. And then there's also something called chat_request. This is an instance of the Cohere chat request class because we're using the Cohere model here, which specifies the input for the generative AI model.
+
+And what kind of inputs? You can see all the inputs here. So this is the message which basically is the prompt saying generate a job description for a data visualization expert with three qualifications. Max tokens is 600, temperature is set as 0, and so on and so forth. We looked into some of these parameters in the theory lesson.
+
+And then what we do is we specify the serving mode, which is on demand. So it's not pre-warmed or anything, it's run on demand. And then we specify the model ID. This is the model which is running the Cohere chat model, which is running.
+
+And you will see that each of these models have a different kind of an OCID. So that's how we associate that this particular model is the one we are planning to run.
+
+And then the last couple of lines are around attaching the previously defined chat request to the chat detail object here. So you can see that here. And we also attach the compartment ID.
+
+And then finally, we send the chat details request to the generative AI service and wait for the response, which is stored in this chat response object. And we'll print the attributes of these objects.
+
+So the way you run these notebooks is by pressing Shift Enter. And as you do that, you will see that the sign here changes and it goes to a star, which means that this notebook is being executed. The Python code is being executed.
+
+And right here, you can see the response which came back. And let me quickly walk you through the response. The status says 200. So the response has been successful.
+
+We are, of course, calling the Cohere command model, so it says Cohere API. And this chat history is basically the history of all the chat messages. So this is the message provided by the user. So you can see the role as user here.
+
+And then this message is what the model returned. And here you can see the role is chat bot. So this will have the history. Remember, these are chat models. So if you have multiple chat requests going back and forth, all that history will be stored in this area here.
+
+And then as you scroll down, you can see finish region as complete. So this request is complete, you can see here. And then this text object is where the output is stored for this current iteration. So you can see that's what the chatbot returned.
+
+And down here, you can see the details like model ID, model version, et cetera. So this is the way you execute the code to call the OCI generative AI service, the Inference API. And now you can run this code in a Jupyter Notebook. Or if you're running an application, you can embed this code in your application.
+
+I hope you found this demo useful. Thanks for your time.
+==============================================================================================================================
+Demo: Config Setup for Gen AI Inference API
+
+In the previous demo, we invoked the Generative AI Inference API. In this demo, let us see how we can set up the config file and parameters in order for this invocation to be successful.
+
+Well, right here is the config file. Let me just zoom in a little bit more. So you can see that the config profile is default. You can have multiple profiles listed here.
+
+There is user OCID, there is fingerprint, there is tenancy OCID. The region I'm using is Frankfurt-1, Frankfurt, and then the key file is the particular private key file, which is available in this location. And the content of the private key file looks something like this.
+
+Now, this invocation was working successfully earlier. So now, let's change that. Let's remove-- let's play with this file here and save this file. I just deleted the private key file content. And now let's go back and run the API and we'll see that the API invocation will fail.
+
+So, I am in the Jupyter Notebook. And this is the notebook we were running earlier. And now let's go ahead. And you saw in the previous demo that the invocation was successful as indicated by a 200 status return here.
+
+So let me status code written there. And then so let me now go ahead and run this code again. And remember that we have changed the content of the private key file, so this invocation will now fail.
+
+So if I go and hit Enter again-- shift and Enter again, you will see that I get this error message now. And if you scroll down-- it's a long error message, scroll down, you can see that the provided key is not a private key or the provided passphrase is incorrect.
+
+So this invocation failed because we deleted the content of the private key file. So now let's go ahead and set it up in the console and see how it-- and invoke it again. And the API will-- Inference API invocation will work.
+
+So let me switch over to the console. And this is the Generative AI console. We were there earlier and we had run this particular prompt and we were programmatically running this thing.
+
+So now to set up the config parameters and the files, let's click on my profile here. You can see my profile is listed here. And I'll click on this link, which says My Profile.
+
+And as I do that, it will basically bring up my details, my profile details, things like API keys, OAuth token, et cetera. So I'll click on API keys. And here you can see that I can add an API key. There is one which is already added. This is the one which I was using in the previous demo and successfully invoking the Generative AI Inference API.
+
+Now let me go ahead and add a new API key. So before I do that, let me just delete this particular key because we're not going to use it anymore. So I'll click on Add API key here. And now you can read more about the API keys, standard RSA key pair in PEM format used for signing API request.
+
+Now I can generate an API key pair, public and private. I can choose a public key file or paste a public key, so I have different options. So what I'm going to do is I'm going to download the private key file here. And I will also click on Add here.
+
+And now the config gets added here. And you can see these parameters. Let me zoom in again. You can see these parameters again, the user OCID, the fingerprint, the tenancy, region, et cetera. So let me just copy all these values and I'll paste these values in the config file, which I've opened in Visual Studio code. So let me close here and switch over to Visual Studio code.
+
+All right. So I have pasted all the values in the Visual Studio code config file here in opening Visual Studio code. And here you can see that the fingerprint got changed. So this is the new value which got added.
+
+And then here, the key file-- the name of the key file change. And this is the new key file which we generated, both the private key and the public key. And this is the private-- the content of the private key here. So this is the one which we had deleted earlier and now it's available.
+
+So let me just go ahead and save this. And now I should be able to go and run the API call and that invocation should be successful.
+
+All right. So this is where we were with the Jupyter Notebook. And as you can see this, we had gotten this-- received this error because we had changed the content of the private key file.
+
+So now let's go ahead and run this Jupyter Notebook again. And hopefully, that error should go away and we should be able to successfully invoke this call.
+
+And as you can see here, the invocation has been successful. You see the 200 status code here and it's similar to the previous run. We can get the results back.
+
+So this was a quick demo which basically walked you through how to set up this config profile and why it is important to do the correct setup. Otherwise, the Inference API invocation will fail. I hope you found this demo useful. Thanks for your time.
+==============================================================================================================================
+Embedding Models
+
+Welcome, everyone. In this lesson, let us look at Embedding Models available in the OCI Generative AI service. First, let us understand what embeddings are. Embeddings are numerical representations of a piece of text converted to number sequences.
+
+A piece of text could be a word. It could be a phrase, could be a sentence, could be a paragraph, or it could be an entire document, one or more paragraphs. Embeddings make it easy for computers to understand the relationship between pieces of text.
+
+Now, let us look at a practical example where embeddings are used. So for example, if I have a sentence, which is something like, "They sent me a," or rather, the phrase, "They sent me a," and I sent this to an encoder. It's an LLM architecture.
+
+Now, encoders are really designed to take that text-- so this is an encoder-- and convert it into a vector. So you see these five vectors? There is a vector for each of the words, and there is also a vector representation for the sentence. So that's basically what the illustration is showing here.
+
+But what is the use of doing so? Well, the real use case comes through when you are doing something like translation, which is a sequence-to-sequence task. So you have an encoder here, and then you have a decoder here. So the set of tokens is passed to the model here, the encoder, set of tokens or the words.
+
+And it takes these words or tokens and converts them into vectors. And these vectors are then fed into a decoder, which starts emitting tokens in a self-referential loop. And we covered some of this in our first module on LLM basics.
+
+And here, what we are trying to do is translate text in English from English to Hebrew. So that's basically what it's being done. So hopefully, you can see how embeddings are used because this is basically what computers understand in order to understand the relationship between pieces of text.
+
+So taking that example further-- basically, word embeddings, if you just consider the words for now, capture properties of the word. So another example here is let's say we have these different words. We have "kitten," "cat," "puppy," "dog," "lion," "elephant," and we map them according to two properties-- their age and their size. And age is on the vertical axis, and size is on the horizontal axis. So elephant is bigger than a lion is bigger than a dog and so on, and so forth.
+
+So this is the kind of mapping we would get. Now, actual embeddings represent more properties or coordinates than just two, which are shown here-- age and size. And these rows of more than two coordinates are called vectors and represented as numbers.
+
+So now you can see here, if we take a word like "puppy" or "kitten," you can see it has multiple numbers associated with it. And some of this is quite intuitive, like age or size. So we convert that into a numerical representation. But there might be some other properties which are shown here.
+
+Now, from the previous slide, you can understand that you have embeddings for any word, and embeddings are simply vector of numbers. So when you have vector of numbers, you can also compute numerical similarity. A similarity measure takes these embeddings which are numbers and returns a number measuring their similarity. This is called numerical similarity.
+
+So basically, you are saying how numerically similar these vectors, which are basically vector of numbers. And there are two techniques which are used-- Cosine Similarity and Dot Product Similarity. Again, we are not getting into details behind each of these, but these techniques could be used to compute numerical similarity.
+
+And the thing which is really important here is embeddings that are numerically similar are also semantically similar. Semantically similar basically means how close their meaning is or how closely they are related. So let me give you another example just extending from the previous slide.
+
+Now, let us say we have more words. So we have animals here, we have fruits here, and we have cities here. And so you can see that embedding vector of a puppy will be more similar to dog than that of a lion, or that of New York, or strawberry.
+
+So you can see these clusters getting formed now. And there are three groups of clusters which are formed based on similarity. You have animals, you have fruits, and you have places. And all three clusters are semantically similar, and their vectors are numerically similar as well. And that's how we figured out that they are semantically similar.
+
+Now, if you have a new word which is given, such as "tiger," you could place it closer to the animals group, close to the cat family member. So this is quite intuitive because you understand what a tiger is and so on, and so forth. But for words which are not that intuitive, this is the concept of how embeddings really work.
+
+Now, taking this further, what we looked at until now were sentence embeddings-- were word embeddings. Now let us look at sentence embedding. A sentence embedding associates every sentence with a vector of numbers, similar to a word embedding.
+
+And similar sentences are assigned to similar vectors. Different sentences are assigned to different vectors. So they are numerically similar, similar sentences. Different sentences are numerically different.
+
+So the embedding vector of a phrase such as "canine companions say" will be more similar to the embedding vector of "woof" you can see here, than that of a "meow." "Meow" would be closer to a "feline friends say."
+
+So the important concept to remember here or understand here is now we are comparing two phrases. So this is a phrase, collection of words, to a single word. And similarly, we could compare words against sentences, against paragraphs, group of paragraphs, et cetera. And we can say how similar or different they are.
+
+Now, what is the use case of doing all of this? We saw an earlier use case of a sequence-to-sequence task like translation where embeddings are used behind the scenes. But there is also another very important use case, and that is around retrieval-augmented generation.
+
+Now, one of the main challenges faced by today's generative models or embedding models is their inability to connect with your company's data. A promising approach to overcoming this limitation is Retrieval-Augmented Generation, RAG. So how fundamentally it works is you can take a large corpus of documents, break it into chunks or paragraphs, and generate the embedding for each paragraph, and store all the embeddings into a vector database.
+
+Now, vector databases are capable of automating the cosine similarity and doing nearest-match searches through that database for some search embedding, you want to search for. So this basically powers the whole RAG system.
+
+And the way it works is, let's say you have a user who has some question which cannot be answered by LLM. Maybe it's related to your customer support calls or something. So the user question is encoded as a vector and sent to the vector database.
+
+Now vector database can run a nearest match in the vector database to identify the most closely associated documents or paragraphs. And it finds this is the private content which closely matches the user query. And then what it can do is it can take those documents or those paragraphs and insert those into a prompt to be sent to the large language model. And basic idea is to help answer the user question by changing the prompt. And then the LLM uses the content which has been given by the vector database plus its general knowledge to provide an informed answer.
+
+So this is, in a nutshell, a big part of how RAG systems work. And good retrieval quality is essential to make this work. And this is where embeddings play a major role.
+
+Now let us look at embedding models available in the OCI Generative AI service. Like we already saw, you take a text, you convert this text into numbers, text as vectors, and these are embeddings. And the embedding models which are supported in the OCI Generative AI service include models from Cohere. So Cohere.embed-English basically converts English text into vector embeddings.
+
+There is also english-lite embedding model, which is the smaller and faster version of embed-english. There is Cohere.embed-multilingual, which is the state-of-the-art multilingual embedding model that can convert text in over 100 languages into vector embedding. It can also enable searching within a language.
+
+So you search with a French query on French documents and across languages. You can search with a French query on English documents. And the use cases, as we already saw, are around semantic search, text classification, text clustering, clustering, et cetera.
+
+Now let's dive a little bit deeper into each of these models. So the English model and the multilingual model-- of course, they support English and multilingual languages. The model creates a 1,024-dimensional vector for each embedding. So every embedding, whether it's a sentence, a phrase, or paragraph, gets converted into 1,024-dimensional vector. And the model takes a max of 512 tokens per embedding.
+
+Now, you see this v3 embed model. This is something which Cohere launched recently. And one of the key improvements in embed v3 is its ability to evaluate how well a query matches a document's topic and assess the overall quality of the content.
+
+This means that it can rank the highest-quality documents at the top, which is especially helpful when dealing with noisy data sets. And it can drastically improve, significantly improve retrievals for RAG systems. So wherever possible, use the v3 model.
+
+We also have the light versions of these v3 models-- smaller, faster versions. And here, the embedding is much smaller, so it creates a 384-dimensional vector versus 1,024 for the embed models. And the tokens is still max 512 tokens per embedding.
+
+And we also have the previous generation model available. And here, you can see some of the numbers-- the 1,024-dimensional vector, 512 tokens. Now, you can input sentence, phrases, or paragraphs for embeddings either one phrase at a time in these models or by uploading a file. Now, keep in mind that a maximum of 96 inputs are allowed for each run. And each input, as we have shown here, must be less than 512 tokens.
+
+So that's pretty much everything around OCI embedding models available in the OCI Generative AI service. We looked at what embeddings are. We looked at some of the details behind embedding models in the OCI Generative AI Service.
+
+And in a subsequent demo, we'll actually see it in action. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Demo: Embedding Models
+
+Welcome. In this demo, we are going to look at the embedding models. Let's head over to the playground. And in the playground, if I click on the Model dropdown, I can see embedding models listed. Now let's look at embedding models, and we'll pick the-- as you can see here, both Cohere version 3 and version 2 models are listed for English, and for multilingual, we have the version 3.0 models listed. So we'll pick the Cohere Embed English version 3.0 model. And right here, I can provide it a list of sentences.
+
+The idea with embeddings, as you recall from the theory lesson, is embeddings are numerical representations of a piece of text converted to number sequences. With embeddings, you can compare two or more pieces of text, be it single words, sentences, paragraphs, or even longer documents, as we saw in the theory lesson. So let's go ahead, and we can add a sentence one by one, or I can just go ahead and embed these sentences from a file.
+
+I already have a file where I've listed statements-- or rather questions about countries and their capitals, so the capital of France, Sweden, Canada, UK, et cetera. And in here, I have a statement, which is asking not about the capital of the countries, but asking about the smallest state in the United States. So let's go ahead and put these sentences through the embedding model. And this is what the output comes back. Now, what the model is doing is it's taking it's capturing the context and meaning of each piece of text, and it is representing them as embeddings, what you see here.
+
+Each dimension of an embedding represents a certain universal characteristic about the text according to how the model understands it. Now, we can look this by compressing the embeddings to two dimensions and plotting them on a scatter plot as is done here. Now, one thing to keep in mind is as we compress the embeddings to lower dimensions, the information retained becomes less because remember in case of Cohere Embed V3 models, the model is creating 1,024 dimensional vector for each embedding, and here, we are showing two dimensions.
+
+But we can only visualize in 2D or 3D. And it turns out that this is still a good enough approximation to help us gain intuition about the data. So this is the scatter plot, which the console gives us. And you can click here to look at the output vector projection, and it's basically saying the same thing, that these are embeddings are projected into two dimensions, plotted as points. The important thing to note here is the statement, which comes next. Vectors with more similarity will have points that are closer together.
+
+If you recall from the theory lesson, we talked about this concept that embeddings that are numerically similar are also semantically similar, meaning text of similar meaning are indeed located close together. So you can see here, all the questions, which are about countries and their capitals, are listed here. So if I hover over there, it says, capital of South Korea, capital of Russia, et cetera.
+
+While the sentence-- or rather the question, which is about the smallest state in the US, is actually an outlier, it's located differently than these points here. So text of similar meanings are indeed located close together. This is the idea of numerical similarity translating into semantic similarity. Now, let's go ahead and add a couple of more couple of more sentences. So I'll go here and say, what is the smallest state in India?
+
+And if run again, you will see that the smallest state in India and the smallest state in the US are located to each other because their meanings are similar. Now, if I go and add another statement, what is the largest state in the US? You will see that it still holds true, this behavior, where the smallest states-- the questions on those are-- the embeddings are located close to each other, and they are equidistant from the question, which is around largest state in the US, and everything else is still the same. All the other capitals and the countries are located here.
+
+So this gives you a good idea about this concept of numerical similarity and semantic similarity. Text of similar meanings are indeed located close to each other. But we also said that the model creates 1,024 dimensional vector for each embedding. So can we look at those vectors? And yes, indeed we can. So to do that, let's click on View Code. And here, the code is in Java and Python. We'll pick the Python code.
+
+And basically, when we run this, the output is the embeddings, those floating point numbers, and you can see them. So I have already copied this code, and I've put them in a Jupyter Notebook here. So let's go ahead. And basically, this is the code which is calling the embedding model API and getting the embeddings back. So if I run this code, you will see the embeddings returned here. Now this is a blob, lots of floating point number. Remember, we have 26 embeddings in total.
+
+And for each of the embeddings, the model is creating 1,024 dimensional vector, and these vectors are floating point numbers. So it's difficult to visualize from right here. So to do that, let me just copy this into Visual Studio Code, and then we can see these 1,024 dimensional vector. Now, before doing that, because we are looking at 26 embeddings, let's reduce that number to maybe just one because then it will be easier for us to look into that.
+
+So let me just do that. I just have one, and let me just execute this code. And now, you will see that this particular vector, which we get back is much shorter. So let me just copy this and head over to Visual Studio Code. All right, so I've copied this in Visual Studio Code, and you can see here, this is the vector, which is the 1,024 dimensional vector. And if I want to go to a particular line here, I can do Control-- and if I go to 1,024, you can see that it's taking me right to this particular point, which is basically the endpoint for this particular embedding.
+
+So what the embedding API is doing is, it's converting this particular question, "what is the capital of France?" So this is the sentence we have, and it's creating a 1,024 dimensional vector for this particular sentence. If I go to line 4, you can see this is the start here. So this was a quick demo where we looked at summarization and embedding models. I hope you found this demo useful. Thanks for your time.
+==============================================================================================================================
+Prompt Engineering
+
+Welcome, everyone to this lesson on prompt engineering. In this lesson, we are going to focus on prompt and prompt engineering in generic terms. But in a subsequent demo, we'll see this in action. So let's get started.
+
+First, let us define prompt and prompt engineering. Prompt is basically the input or initial text provided to the Large Language Model. And prompt engineering is basically the process of iteratively refining a prompt for the purpose of eliciting a particular style or a particular type of response from the large language model.
+
+Now, in previous lessons, we have seen that LLMs basically our next word predictors, or they basically predict the next set of words or next set of token. And text prompts are basically how users interact with Large Language Models. And what LLMs do, they attempt to produce the next series of words that are most likely to follow from the previous text. We have seen this in the previous lessons.
+
+So, for example, if you provide a prompt, which says four score and four years ago, our and you stop here, basically, the LLM will complete this particular prompt. And it will go, forefathers brought forth a new nation blah, blah, blah. And goes all the way, shall not perish from the Earth-- I have actually put the concise form here. The speech is much longer. This is Lincoln's Gettysburg speech from 1863 very famous speech.
+
+So basically, what Large Language Model is doing here is if you give it a prompt, it's trying-- it's basically completing that prompt here. And it's a well known speech so the language model knows what next words should come.
+
+So, if this is the case, then basically the way completion LLMs are trained-- they are trained to predict the next word on a large data set of internet text rather than to safely perform the language tasks that the user wants.
+
+So if this is the case, you cannot give instructions or ask questions to a completion LLM. Instead what you need to do is, for every prompt, you need to formulate your input as a prompt whose natural continuation or completion is your desired output. Now this is not practical. And this is not how Large Language Models work. And there have been several research papers put-- where they have put forth how they have fine-tuned their models.
+
+So, for example, this paper on Llama 2 came out in 2023. And basically, they talked about how reinforcement learning from human feedback is used to fine-tune LLMs to follow a broad class of written instructions. So let me just pause here and give you a little bit more context.
+
+So Llama 2 foundational models were trained on a data set with 2 trillion tokens-- the base model. Now Llama 2 chat-- Llama 2 chat is a different model than the base model. That was additionally fine-tuned on something like 28,000 prompt response pairs created for this particular project.
+
+And to align Llama 2 to follow instructions, what we refer to as AI alignment, Reinforcement Learning with Human Feedback, RLHF, was used with a combination of more than 1.4 million meta examples and 7 smaller data data sets.
+
+For folks who are not familiar with RLHF, it's a model training procedure that is applied to a fine-tuned language model to further align model behavior with human preferences and instruction following. So, in this case, human annotators write prompts, and they compare the model outputs.
+
+The human feedback is subsequently used to train a reward model which learns patterns in the preferences of the human annotators and can then automate preference decisions. So this is how reinforcement learning from human feedback works. And in today's context, most of the LLMs can follow instructions because those models are fine-tuned. And something like Reinforcement Learning from Human Feedback is used to fine-tune those LLMs to follow a broad class of written instructions.
+
+Now changing here, let's look at what is in-context learning and few-shot prompting. Now the reason I want to bring this forward is, in general, prompt engineering is challenging, but it can also be successful. There have been many successful strategies for generating prompts that are useful and successful for specific tasks and particular models. And we will list a few of them.
+
+So the first one is this thing called in-context learning. Now, it is not learning in the traditional sense as none of the model parameters are changing. What it means is that it has demonstrations of the task that the model is supposed to complete. And you're basically conditioning an LLM with instructions and demonstrations of the task the LLM is meant to complete.
+
+So, in this example here-- and there is something also called k-shot prompting, where you explicitly provide k examples-- k as in the numbers 0, 1, 2 of the intended task in the prompt. So the example which follows here is from a paper from 2020. And basically, what they are saying is they are asking the Large Language Model to translate some text from English to French. And here, we have three examples, which follow. And they basically are asking the model to take the next word here and translate it into French.
+
+Now one thing I would like to clarify in the paper they call the first line as the task description, then they explicitly call examples. And they are saying cheese is the prompt, and they want cheese to be translated into French. But in reality, this whole entire statement or this whole set of instruction is a prompt. And basically, even though they have labeled different pieces of the text to signify what is the task versus what are the examples, this whole thing is a prompt, not just the cheese here.
+
+So this is an example of a three-shot prompting because you're giving three demonstrations or three examples. Now, in general, few-shot prompting is widely believed to improve results over zero-shot prompting. So, in case of zero-shot prompting, it would basically mean you give-- translate English to French as a task description, and you don't give any of these examples. And you provide cheese as a prompt, and you expect the output to be in French-- the word to be translated into French, but few-shot prompting is widely believed to improve results over zero-shot prompting.
+
+Now also one thing to keep in mind is when you give these prompts, you have to care about the prompt format Large Language Models like Llama 2 are trained on a specific prompt format. If you format your prompt in a different way, you may get different results or results-- inferior results, suboptimal results.
+
+So, for example, Llama 2 prompt formatting follows a specific set of tags. And if you don't put these tags in this way, you will not get the desired output. So, for example, if you're managing dialogue state with multiple exchanges between a user and the Llama 2 model because it's optimized for dialogue use cases, you need to mark the dialogue terms with instruction tags.
+
+So here you say beginning of the entire sequence, here you say beginning of instruction, and here you say end of instruction. And this is how you format your instructions with these instruction tags. Now not only this. You can also modify the system prompt that is used to guide model responses. By altering the input to the system prompt argument, you can inject custom context or information that will be used to guide model output.
+
+So here you can see, I've given my system prompt within this system tags, and also my user message comes here. So you have to strictly follow this particular format. If you don't, you will not get an optimal result. And we will see this in a subsequent demo.
+
+Finally, let me just conclude this lesson by giving you a couple of advanced prompting strategies. So the one prompting strategy which is used a lot is called chain-of-thought prompting. And here the idea is you are providing examples in a prompt to show responses that include a reasoning step.
+
+So the idea here is, if we have a complicated task, then we are going to prompt the model to break the problem into small chunks exactly like you would solve it. Personally, if you are solving it yourself and then let the model solve each of the intermediate steps.
+
+So you can see here, I have a question here asking-- kind of a simple math question, but it's difficult for the Large Language Model to comprehend. And in my answer, I'm giving intermediate steps and I'm-- so I'm breaking this problem into smaller chunks with kind of translating into verbal equations.
+
+And this paper came out in 2022 and the research paper showed that chain-of-thought prompting lets the model accomplish complex tasks that involve intermediate reasoning. So this is something which is definitely a successful prompting strategy.
+
+Another strategy, which is quite popular is also-- is called zero shot chain-of-thought. It's similar to chain of thought, but you don't provide an example. Rather what you do is you provide something like this phrase here-- let's think step by step, and it would do the same thing as the previous example. And it would break the problem down complex-- complicated task into smaller chunks, and it would solve the intermediate steps. And then finally, it will solve the entire problem.
+
+So these are a couple of advanced prompting strategies which you could use. That's pretty much it on prompt engineering. I know this was a lot of generic theory, but we will see-- in the next demo, we will see all of this in action. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Customize LLM with data
+
+Hello, everyone. Welcome to this lesson on customizing LLMs with your data. Before we dive deeper, let us look at whether you can train LLMs from scratch with your data. It's not a great idea to do so. Why? There are three main reasons.
+
+The first reason is it's very expensive to train these models. You can see some numbers here. It's around-- roughly costs a million dollar to train a language model with 10 billion parameters. You need a lot of data for training these models. For example, Meta's Llama-2 model was trained on 2 trillion tokens. That's something like a billion legal briefs. And you need a lot of annotated data. Basically, data which is labeled, categorized, and tagged. So it's also very labor intensive.
+
+And then you need a lot of expertise. Pre-training these models is hard-- requires a thorough understanding of the model performance, how to monitor for it, detect and mitigate hardware failures, and understands the limitations of the model. So it's not a great idea to train LLMs from scratch with your data. So what are the options?
+
+There are three options you could use to customize your LLMs. The first option is what we refer to as in-context learning or few-shot prompting. We looked at these techniques in the prompt engineering lesson.
+
+The basic idea is that user provides demonstrations in the prompt to teach the model how to perform certain tasks. So you can see here I'm giving a task description asking the model to translate some words in English to French, and then I'm asking it to translate another word from English to French. So this is in-context learning.
+
+Another technique which is used is called chain of thought prompting, where you are asking the model to break a problem into smaller chunks and solve each of these intermediate steps or each of these intermediate chunks. The main limitation here is the model context window and the length. Many of the models have length around 4,096 tokens or even smaller. And that is all the number of tokens a model can process at any given time. So this is the main limitation why you would not use few-shot prompting.
+
+Another technique which you can use to customize your LLMs is called fine-tuning. And we'll discuss fine-tuning in subsequent lessons, but the main idea here is you are optimizing a model on a smaller domain-specific data set. And it is recommended when a pre-trained model doesn't perform your task well or when you want to teach it something new. And using fine-tuning, your model can adapt to specific style and tone and learn human preferences.
+
+Now there are two main advantages of doing fine-tuning. The first one is you are improving the model performance on specific tasks. It's much more effective than prompt engineering. And by customizing the model to domain specific data, it can better understand and generate contextually relevant responses.
+
+The second advantage is you are improving the model efficiency. You are reducing the number of tokens needed for your model to perform well on your task, and you're condensing the expertise of a large model into a smaller, more efficient model. So these are the two main advantages of or the benefits of using fine-tuning.
+
+The third approach, which you can use to customize your models is-- Large Language Models is retrieval augmented generation. And here what you are doing is you are hooking the language model to some kind of enterprise knowledge base. It could be a database. It could be a wiki. It could be a vector database to provide grounded responses. And grounded basically means that the generated text is grounded in a document if the document supports the text.
+
+So you can see an example here a person is chatting with a virtual chat bot, which is-- and the person says, can I return the dress I just purchased? And the chat bot goes back to the enterprise database and picks up the return policy and says a couple of things. Return has to be within this window and items purchased on sale cannot be returned. This is coming from an enterprise database.
+
+And then the user says, how do I know it is on sale? And she uploads her receipt. And then the chat bot basically goes and again looks up the enterprise database to see when this item was purchased what was the price and whether it was on sale or not.
+
+So this is a great example where there is not a human sitting on the other side. It's a virtual chat bot built using this framework and going back to an enterprise data source and really giving grounded responses because using RAG you can give the model access to private knowledge that it otherwise would not have like your return policy and the return window et cetera. Important thing to keep in mind is RAGs do not require any kind of fine-tuning or custom models.
+
+So now having seen all these three techniques, let us compare and contrast them side by side. So few-shot prompting is useful when the LLM already understands the topic that are necessary for text generation. It's very simple to do. There is no training cost. But on the disadvantages, you're adding latency to each model request.
+
+Fine-tuning, on the other hand, is used when the LLM is not performing well on a particular task. And the data required to adapt the LLM is too large for prompt engineering because you will hit that context window length problem. And then also when your latency with your current Large Language Model is too high. So those are some of the use cases why you would use fine-tuning.
+
+And, of course, the advantage is you're making the models more efficient. You're increasing the performance. No impact on model latency. The disadvantage here is it's not easy. It requires a labeled data set, which can be expensive and time consuming to acquire. And it's very labor intensive.
+
+The third approach is RAG. And you would use RAG, as we saw, when the data changes rapidly like your written policy could change. So you hook it up to a system and keep that on record, or when you want to mitigate hallucinations by grounding answers and enterprise data.
+
+Now the advantage with RAG is you are always accessing the latest data. Your grounding the results, and you don't require any kind of fine-tuning. But the disadvantage is RAG is more complex to set up and requires a compatible data source that's very important. So these are the advantages, disadvantages, and the use cases when you would use one of these techniques.
+
+Now one thing which you would think is do I have to use RAG versus fine-tuning versus prompt engineering? And the answer sometimes is-- many times is not really because each of these are solving a different set of problems. So the framework you should think about is on these two dimensions.
+
+So the first is context optimization on the horizontal axis. And this is what the model needs to know what's the context for the model. And on the vertical axis, you have LLM optimization. What is the method that the model needs to act on.
+
+So the first thing you start with is prompt engineering. It's the easiest to start with. You can test and learn quickly. You can get to an evaluation, figure out how you're going to consistently evaluate your outputs. And from here, then you can decide whether it's a context problem or whether it's an LLM optimization problem.
+
+If it's a context problem, then you use a RAG system. If it's an LLM optimization problem, you need your model to follow more instructions-- more instruction following, then you can use fine-tuning. And sometimes, you're using all of them because some of these are additives. So you require both these approaches or all three of these approaches.
+
+So let us look at what a typical journey would look like. You would start at the bottom corner here. You have a prompt, and then you create an evaluation framework, and you figure out what your baseline is. So that's where you start. Start with a simple prompt.
+
+Then you can give some few shot examples of input/output pairs you want your model to follow. So still in prompt engineering, but you're giving some-- you're adding a few shot examples. Then you can add a simple retriever using RAG.
+
+Now let us say you have these few shot examples increase your model performance. Now you hook your model to an enterprise knowledge base and create a RAG system. Now let us say that you are satisfied with your model, but the output is not coming out in the format or style that you really want.
+
+So now you can take this model and you can fine-tune this model, which is built on RAG. And then it-- probably the output is in your style, but then maybe you figure out that once you have done that, the retrieval results are not that good and so you want to optimize the RAG system further. So you can actually go back and optimize your retrieval and so on and so forth.
+
+You can see a pattern here where you are literally using all the different techniques, and it depends on your optimization journey when and which technique to use. So hopefully, it gives you a good framework on how to think about a bunch of these techniques.
+
+And that's pretty much it. In this lesson, we briefly looked at how you can customize LLMs with your own data. The three main techniques being few-shot prompting, fine-tuning and retrieval-augmented generation. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Fine Tuning and Inference in OCI Gen AI
+
+Welcome to this lesson on fine-tuning and inference in OCI Generative AI service. Before we go dive deeper, let us first look at what fine-tuning and inference really mean. We have covered this a couple of times already in this module. Fine-autotuning is basically taking a pre-trained foundational model, and providing additional training using custom data, as is being shown here.
+
+In traditional machine learning terminology, inference refers to the process of using a trained machine learning model to make predictions or decisions based on new input data. But in case of large language models, what inference refers to is the model receiving new text as input, and generating output text based on what it has learned during training and fine-tuning. So this is basically how inference and fine-tuning look like in context of large language models.
+
+Now, let us look at fine-tuning workflow in the OCI Generative AI service. Before we go and look at the workflow itself, there is one term you need to know, which is custom model. Now, custom model is a model that you create by using a pre-trained model as a base, and using your own data set to fine tune that model. It's called a custom model.
+
+So the process is quite straightforward. The first step is you create a dedicated AI cluster. And the type of the cluster is fine-tuning cluster. Then you gather training data. And you could actually start here. You could gather training data, and then create a dedicated AI cluster. So you could interchange these steps.
+
+The third step is to kick start the fine-tuning process. And the fourth step is where you get the fine-tuned or the custom model, is created, and you have that model. So this is what the workflow looks like. In a subsequent demo, we will actually walk through this process in the OCI Console.
+
+Now, similar to that, let us look at the inference workflow in the OCI Generative AI service. Now, before we go, just a quick term here, which is called Model Endpoint. Model Endpoint is a designated point on the dedicated AI cluster, where the large language model can accept user request, and send back responses, such as models generated text. So that's the endpoint where you can receive, request, and send response.
+
+Quite straightforward process. The first step is, you create a dedicated AI cluster, like we did with fine-tuning. Now the cluster is called a hosting cluster. And then you create the endpoint. And then, basically, you serve the traffic, the production load, or you serve the model. So this is what the process looks like.
+
+Now, before we go and talk about fine-tuning itself, let us quickly look at the dedicated AI clusters. We have covered this in the intro lesson. The main idea with dedicated AI cluster is, the service is giving you a single tenant GPU deployment, where the GPUs in the cluster only host your custom models. Because the endpoint is not shared with other customers, the model throughput is consistent. And because the model throughput is consistent, it's easy to determine the cluster size, what kind of cluster you need to run your models. And we have a lesson where we are going to look at dedicated AI clusters, sizing, and pricing later on.
+
+Now, there are two kinds of clusters which you can create. The first cluster type is the fine-tuning cluster, as the name signifies. This is the cluster which is used for training, a pre-trained foundational model. And the second cluster type is the hosting cluster. This is where you host your custom model endpoints for inference. So for training, fine-tuning, you use the fine-tuning cluster. And for inference, you use the hosting cluster type.
+
+So with OCI Generative AI service, there is a fine-tuning technique, which is called T-Few. And this is really relevant because it's much efficient. It's much cheaper, much faster. So we'll talk about what T-Few fine-tuning looks like. But traditionally, Vanilla fine-tuning basically involves updating the weights of all the layers, or most of the layers in the model.
+
+Now, because of that, it requires longer training time, and higher serving cost. And we do support Vanilla fine-tuning in the OCI Generative AI service. But there is another technique which is supported, which is called T-Few fine-tuning. And this one, in contrast to the Vanilla fine-tuning, selectively updates only a fraction of the model's weights. And basically, this technique is an additive, what is referred to as Few-Shot Parameter Efficient Fine Tuning technique that inserts additional layers. And you can see here, the layers comprise only 0.01%, roughly 0.01% of the baseline model size. So really, really small set of layers it inserts.
+
+And these weight updates are localized to the T-Few layers during the fine-tuning process. And because of this, the model, isolating the weight updates to only the few select layers, we are able to significantly reduce the overall training time and the cost compared to Updating all the layers with something like Vanilla fine-tuning. So there's definitely something which you can leverage, and give you really good results at a lower cost.
+
+Now, let us look at how the T-Few fine-tuning process works. I'm not going to get into all the transformer layers, and the attention mechanism, and how the weights are propagated. But let me quickly walk you through the process itself. The process begins by utilizing the initial weights of the base model, and an annotated training data set. Now, this annotated training data set is the labeled data set, which is basically input/output pairs employed in supervised training.
+
+So you take this annotated training data set. You have the base model weights. And then, basically, you generate a supplementary set of model weights, which is, again, roughly around 0.01% of the baseline model's size. So these fine-tune weights are generated. And now you propagate these weights to a specific group of transformer layers, which are called the T-Few transformer layers, rather than updating all the layers in the model. And doing so, basically, you reduce the training time, and also the cost.
+
+So, again, not going into all the details. The basic idea is we start with a pre-trained model, and then fine-tune the pre-trained model using a small number of input/output examples specific to the new task or domain we are trying to work on. And this file-tuning process involves adjusting the parameters of the pre-trained model to better suit the characteristics of the new task, while still retaining the knowledge learned during the initial training phase. So in a nutshell, that's basically what the T-Few fine-tuning process looks like.
+
+Now, one important consideration here is, using this, we can also reduce the inference cost. And inference is basically computationally expensive. So every time you're sending a request, you're getting a response back, there is cost associated with that. Now, in case of OCI Generative AI service and dedicated AI cluster, each hosting cluster-- so this is a hosting cluster-- can host one base model endpoint, and up to n fine-tuned custom model endpoints.
+
+And each of these can serve requests concurrently. So you can see here, we have a base model. And we have several custom models which are running along with the base model. And they can serve requests concurrently. So this approach, where all these models are sharing the same GPU resource, you could also refer to as multi-tenancy, reduces the expenses associated with inference. Because inference is computationally expensive.
+
+And endpoints, these endpoints can be deactivated to stop serving request, and reactivated later. So it's quite straightforward to do that. Now, as we do that, one question which comes up all the time is, how do we handle the GPU memory? Now, in a typical scenario, GPU memory is limited. So when you switch between models, it can incur significant overhead due to reloading the full GPU memory.
+
+So now what do I mean by that? GPUs are particularly well suited for deep learning tasks, due to their parallel processing capabilities. But they offer a finite amount of memory. When you switch between models, the GPU typically needs to load the entire model into its memory space before it can start processing data. This is what we refer to as overhead here.
+
+Now, this overhead includes the time and computational resources required to transfer the model data from the system memory to the GPU memory, as well as any initialization or setup tasks needed to prepare the GPU for processing with the new model.
+
+Now, in case of OCI Generative AI service, basically what we are doing is, these models are sharing the majority of weights, in case of a T-Few fine-tuning process. And with only slight variations between them or among them. So they can be efficiently deployed on the same GPUs in a dedicated AI cluster, as we saw on the previous slide.
+
+So you have a base model here. And then you have several custom models. And the weight difference between the base model and model A, B, C, is minimal. Because we are updating only roughly, approximately 0.01% of the base model weights.
+
+So what this does is, because of this architecture, this results in minimal overhead when you have to switch between models derived from the same base model. Because what is happening is, you are deploying the base model alongside its fine-tuned versions. Remember, we are using the T-Few fine-tuning here. And this allows for something which is referred to as parameter sharing, where the common parts of the models are loaded into memory once, and shared across different tasks or processes.
+
+This significantly reduces the total amount of memory required, compared to a scenario where each model with its entire set of parameters is loaded separately. So this is how we reduce the memory overhead. And as you can see here, we are getting several inference requests. And then we are returning these responses here. So it's much lower overhead because of the inherent architecture of the OCI Generative AI service and the dedicated clusters we have.
+
+So this is pretty much it. In this lesson, we covered fine-tuning, particularly T-Few fine-tuning. And we also looked at inference. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Dedicated AI Cluster Sizing and Pricing
+
+Welcome to this lesson on dedicated AI clusters, sizing, and pricing. Here, the focus is to look at how you can size these clusters and how you can price these clusters. I have an example, which will walk you through how the pricing is done for these dedicated AI clusters. So let's get started.
+
+Before we dive deeper into sizing and pricing, the first thing to understand is what are the different cluster unit types. There are four cluster types or cluster unit types which you can use in generative AI service today.
+
+So the first one is called large Cohere dedicated. And using this cluster type, you can do both fine tuning and hosting but limited to Cohere Command R family. And you can see a couple of models, which are supported as of today's recording. When you are listening to this lesson, it might happen that you have fewer models supported or a newer set of models supported, so you should always check the documentation to see what kind of models are supported. So the first one is large Cohere dedicated.
+
+The second one is a small Cohere dedicated unit type. And here again, you can do fine tuning and hosting for Cohere command R models. And it supports a couple of models, which are shown on the screen here.
+
+The third unit type is for embedding. And this is again for Cohere. So you have embed Cohere dedicated. And as you know, there is no fine tuning of these embedding models. We don't kind of support that. Most of the LLM providers actually don't support fine tuning these embedding models. But we can host these embedding models and it supports Cohere English and multilingual models to be three of those models and also supports the Lite flavors of these models.
+
+And finally, the fourth unit type is large meta dedicated unit type. And this can be used for fine tuning and hosting of Meta Llama models. And you can see the models which are supported, Llama 3.3, 3.1, 70 billion parameter models, Llama 3.2 Vision models, both 11 billion parameter and 90 billion parameter.
+
+And in the previous family of Llama 3.1 model with 405 billion parameters. So these are all supported using meta dedicated large meta dedicated unit type.
+
+So the thing to keep in mind is you have these four unit types. And if you are using Cohere models, you would be running either large Cohere or small Cohere models, whether if you are fine tuning or hosting these or customizing these. If you are using embedding, you would be using this dedicated AI cluster type.
+
+If you are using Llama models, you will be using the large meta dedicated unit type. You will not mix match, so these are clearly defined. This is for Cohere, these three. And then this one is dedicated for Meta Llama models.
+
+Now let us look at how they are used in practice. Now one of the things which I want to mention here is you see in parenthesis there are these long texts which kind of are the SKU names or the service limit names. So there is dedicated-unit-large-cohere-count, dedicated-unit-small-cohere-count, and so on and so forth.
+
+The idea is by default, these service limits are zeroed out in your tenancy. And you have to ask for-- do a service limit increase request in order to get these provisioned or enabled in your account. And these are the actual service limit names, which you would use in order to ask for a service limit increase.
+
+All right, so now let's look at how the sizing is done for each of these model types. So suppose we are using a capability for chat and we are using the Cohere command R-plus 08-2024 as of this recording. This is the latest and greatest model which is available as part of the OCI Generative AI Service.
+
+So today, we don't support fine tuning of this model. But if you want to host this model, you need two units of large Cohere dedicated. And as I said, dedicated-unit-large-cohere-count is zeroed out. So you would ask for a service limit increase. And you ask for two units of this particular service limit in order to host this particular model.
+
+Another model from Cohere, which is supported today in the service, is Command R 08-2024. Now we support both fine tuning and hosting for this model type. So for fine tuning, you require 8 units. But now you require small Cohere dedicated units not large Cohere dedicated. And for hosting, again you require small Cohere dedicated. So here, you have large Cohere, you have small Cohere dedicated.
+
+And why do we need that? What are the underlying parameters? All that complexity kind of is not exposed to the customers. And this is in this lesson, we are not going to cover how many GPUs you get, the GPU pool and parameters and things like that. But just remember, there is a large and a small dedicated unit.
+
+On the other hand, if you are using any of the Meta Llama models, 3.3 or 3.1, and you want to fine tune those, you can use the large meta dedicated units, but you need four of those units for fine tuning. And for hosting, you would just need one of those units.
+
+And last, if you are using embedding models, whether you are using the Cohere English embedding models or multilingual embedding models, you would require one unit for embed hosting these embedding models and one unit of embed Cohere dedicated. And like I said in the previous slide, there is no fine tuning concept for these embedding models. It's not supported.
+
+Now let's look at an example. Suppose you want to fine tune a Cohere command R 08-2024 model, this particular model we discussed here. So in that case, you would need eight small Cohere dedicated units for fine tuning. And for hosting this fine-tuned model, you need a minimum of one small Cohere dedicated unit. So in total, you require eight small Cohere dedicated units here and one small Cohere dedicated unit here, so require nine units.
+
+And again, as I said previously, if your service limits are zeroed out, so when you ask for service limit increase, you will ask for dedicated unit small Cohere count to change to 9 or increase to 9, so you can do both fine tuning as well as hosting of this particular model.
+
+Now let's conclude this lesson by looking at a dedicated AI cluster pricing example. Now let's say we have an actor here, Bob, who wants to fine tune the same model we saw on the previous slide, Cohere Command R 08-2024 model. And after fine tuning, he wants to host this custom model in the service.
+
+So he creates a fine-tuning cluster. And as we saw in the previous slide, for fine tuning this particular model, you require eight small Cohere dedicated units. Now the fine tuning job doesn't have to go for 24/7. It can take a few hours. In his case, it takes five hours to complete. In our case, it could be longer or shorter.
+
+So he creates-- he does this once a week and he does this once a week for the entire month. So he creates a cluster. He does a fine tuning and he does that once every week and four times in a month.
+
+But then when he creates these fine tuned models, he hosts them for the entire month. So this is his requirement. Now let's look at some of the service minimum commitment required. So for hosting, the minimum commitment is you host the model for the entire month. So you see 744 unit hours. Basically, that means that you cannot do partial hosting. If you host a model, you're hosting it for the entire month.
+
+On the other hand, the fine tuning commitment is only for how long the fine tuning takes. So minimum is one hour. But if it takes five hours, you only need for five hours. You don't need for 744 hours. So minimum, you have to spend an hour. It cannot be partial hours. It cannot be like my fine tuning takes 30 minutes. You will still be charged for the entire hour, but after that, it's every hour gets added.
+
+So now let's look at his particular requirements. So fine-tuning cluster requires eight units, as we discussed for this particular model. Some other model, it could be something else. And each cluster is active for five hours. So total, he requires 40 unit hours for fine tuning.
+
+Hosting, as we said, runs for the entire month. So you require 744 unit hours. And you can host multiple models in the same cluster as we have looked at in the previous lessons.
+
+So for fine tuning, the monthly cost would be-- this is your weekly cost, 40 unit hours. You multiply that by 4, and then you multiply that by the price of the dedicated unit small Cohere count price, whatever that price is. So 40 in to 4. And similar to that for hosting, it's quite straightforward, 744 unit hours you are spending. So you multiply that by dedicated unit small Cohere count price.
+
+And then the total monthly cost is 160 plus 744. So that comes to 904 multiplied by dedicated unit small Cohere count price. Kind of missing the price word here. And so today, you can go and look up this information on the web. I believe this particular SKU goes for $6.50. And that's the price we publish on the website.
+
+So if you do the math, multiply 904 by $6.50, comes out to somewhere around $5,900. So in Bob's case, if he wants to fine tune and host these models on the dedicated AI cluster, you're looking at somewhere close to $6,000 cost for the entire month.
+
+So this hopefully gives you a quick understanding of how these clusters are sized and how these clusters are priced. And of course, you should always look up the latest pricing and information documentation, because some of the things might change when you are watching this particular lesson. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Demo: Dedicated AI Cluster
+
+Welcome to this demo on dedicated AI clusters. In this demo, we are going to spin up dedicated AI clusters. So to do that, you can click from here and access the console, where we can create these clusters.
+
+Now, dedicated AI clusters are GPU-based compute resources running in their exclusive RDMA network. So we looked at this in detail. But before we-- so we can click Create dedicated AI cluster and create these here.
+
+But before we do that, let's make sure that our account has the service limits enabled in order for us to create dedicated AI clusters. So to do that, click on governance and administration. And right here, under tenancy management, you see limits quotas and usage. So click on limits there-- quota and usage.
+
+And I'm logged on to the Chicago region. Depending on which region you are, these limits can change. So let's bring up generative AI here.
+
+And right here, I can see generative AI. And now, you can see that, as we discussed in the theory lesson, the dedicated AI cluster come in four unit sizes. There is a small cohere dedicated. There is large cohere dedicated. There is llama2-70 dedicated. And there is embed cohere dedicated.
+
+Now, out of these four unit sizes, the one which this account has limits in is for the small cohere dedicated units. And I have three of those. So that basically means that I can run a fine tuning job. Because, remember, for fine tuning, you need two dedicated units. And I can run a hosting. I can host these models, because I need a minimum of one dedicated unit for that.
+
+But one thing to keep in mind is because my limits are for small cohere, I can only use the cohere command light model. I cannot use the cohere command model, if I'm spinning up these clusters.
+
+So having confirmed this, let's head back to generative AI console. And let's spin up these clusters. So I'll click on dedicated AI clusters. And I'll choose the compartment. I have to give a name here. So this is-- I'm doing custom fine tuning. So I'll call this is my custom fine tuning cluster.
+
+And I can give a name here. And I'll choose fine tuning. And right here, you can see that it's picking the cohere command. And it gives me an option of cohere command light. But if I choose command, I will not be able to run the fine tuning jobs, because I have to match the models to-- the base models to the cluster units, which my account is enabled.
+
+So I'll choose cohere command light. And here, it is saying that this will provision two small cohere units, which I have in my account. And also, important to note here is I have to check this box, which says that I commit to one unit hour for this fine tuning dedicated AI cluster.
+
+This, again, we saw in the theory lesson. The minimum commitment is for one unit hour. So with that, I'll click Create. And what this will do is it will take a few minutes. And it will create this file tuning dedicated AI cluster. It started creating now.
+
+So as it's doing that, let's go ahead and create a hosting dedicated AI cluster as well. So this we will call it hosting cluster. And we can provide a description. And here, it says hosting. And for the base model, I'll pick command light. And as you can see, it says, I will provision-- this will provision one small cohere unit.
+
+And here, you can see that the minimum commitment is different. It's saying I commit to 744 unit hours, meaning, this runs for the entire month. So once you create this cluster, you are pretty much using it for the entire month. But you can use this cluster to host up to 50 models, if you are using the t-few fine tuning methodology.
+
+So I'll click Yes to that. And I'll click Create. And similar to the fine tuning cluster, this will take a few minutes. And once these clusters are up and running, we'll come back. And we'll take a look at them.
+
+So that process literally took a couple of minutes. And both the hosting cluster and the fine tuning cluster are created here. And you can see the type is listed. Fine tuning here. And hosting here.
+
+And, also, for hosting, as I said, if you're using t-few methodology, or a t-few technique, you can, actually, host up to 50 models on the same cluster. So you can see that listed here. It also says the unit size. So small cohere for both. And for fine tuning, we require two units. So that's listed here. And for hosting, we need a minimum of one unit. So that's listed here as well.
+
+So if I click on the fine tuning cluster, now, you can see some details. The cluster is active. The unit is two. The unit size is small cohere. And I can start creating fine tuned models by clicking on Create model here.
+
+And this will kick off the workflow necessary to do fine tuning. So I could do that here. And if I click on hosting cluster, you can see that it can host 50 models. So endpoint capacity is 50, because I'm not running any model as of now.
+
+And once I do the fine tuning, I have a custom model created. I can create an endpoint for that model. So I can do it from here. So in the next couple of demos, we are actually going to kick off a fine tuning job.
+
+And then once a custom model is created, we'll create an endpoint and host that custom model on this hosting cluster. I hope you found this demo useful. Thanks for your time.
+==============================================================================================================================
+Fine Tuning Configuration
+
+Welcome to this lesson on Generative AI fine-tuning configuration. So what you see on the right-hand side is the OCI console showing the various options available for fine tuning and fine-tuning configurations.
+
+First, let's look at what methods are available. So we have two training methods available today within the service, T-Few, which we have looked at earlier, and LoRA, which is Low Rank Adaptation. Now PEFT, I think we discussed this earlier, stands for Parameter Efficient Fine Tuning, which basically means adjusting a model without changing everything about it.
+
+Now I'll give you an analogy because this is a complicated topic. Imagine a deep learning model as a very complex machine with many parts. When we want the machine to perform a new task, we don't have to rebuild the entire machine. Instead, we can make small adjustments. And the two popular methods for doing these smaller adjustments are T-Few and LoRA.
+
+And we have looked at T-Few in the previous lessons. Imagine T-Few is like adding small helper parts to the machine. And these helpers, you could think about as new layers, to tweak just a few things without changing everything.
+
+LoRA, on the other hand, is like adding special gears to the machine to adjust it while leaving the main parts unchanged. So this is a quick analogy. And this way, what I'm trying to say is the machine can perform a new task without a whole makeover using either of these techniques.
+
+And then right here on the screen, you see various hyperparameters, fine-tuning configuration parameters. And a bunch of these parameters we'll look at in the next slide.
+
+All right, so what are these fine-tuning parameters? And this one, I'm talking in the context of T-Few in the context of LoRA. These will change a little bit. And it's always a good idea to look at the current documentation, because I have some valid range and some default values, which might change by the time you are watching this particular lesson.
+
+And these are, again, very complicated topics. So let me give you an analogy, the same analogy we used earlier on having this deep learning as a machine, as a complex machine. So think about total training epochs as how many times we let the machine study the task data. More epochs mean more study time.
+
+Training batch size, think of this as how many parts of the task data the machine studies at once. Larger batches can speed up learning, but smaller batches might provide more detailed insight.
+
+Learning rate is how fast the machine adjusts its settings based on what it learns. A higher rate means quicker adjustments, while a lower rate means more careful changes.
+
+Early stopping threshold basically sets the standard for when the machine should stop studying if it is not improving fast enough. While on the other hand, early stopping patience is how long the machine waits before deciding it's not learning enough to continue.
+
+And then finally, the log model metrics interval in steps sets how often the machine checks and records its progress during its study sessions. So hopefully, this quick analogy helps you understand some of these hyperparameters in a much better context.
+
+These are complex topics, so if you want to go back and relisten to what I just said, you can do that. Or you can refer to documentation and go deep and see how these parameters are defined, what are some of the values you should be using.
+
+Now, once we have looked at the training methods and the various hyperparameters available, let us look at how you can evaluate the fine-tuning results, because that's a very important topic as well. So there are two key metrics we use. The first one is called accuracy. And accuracy basically measures whether the generated tokens from the model match the annotated tokens.
+
+Now, you might ask what is an annotated token? Basically, annotated tokens refer to the correct or expected tokens. So these could be words or characters that have been manually labeled or predefined as the right output for a given input. These are usually created by human experts or derived from high-quality reference data.
+
+For example, if a language model is trained to summarize a sentence, the annotated tokens would be the correct summary that the model is expected to generate. And an accuracy basically measures how well the model's generated tokens match these annotated or correct tokens. And next slide, I will actually give you an example.
+
+So accuracy basically tells you how many predictions the model got wrong. Loss, on the other hand, measures how wrong the generated outputs of a model are. So see the emphasis here on how wrong the generated outputs of a model are. And I'll give you another example so you can see how this works in real life.
+
+Loss of 0 basically means all outputs were perfect. While on the other hand, a large loss number indicates highly random outputs. And loss decreases as a model improves. So let's look at these in action in a real-world context.
+
+We already looked at the definition of accuracy. And accuracy is calculated as the percentage of correct tokens, predictions compared to the ground truth. So let's look at an example. Let's say the ground truth is the cat sat on the mat. Simple sentence.
+
+And the model predicted after fine tuning, the cat slept on the rug. And so if you compare these tokens predicted by the model versus the ground truth, there are two tokens or words which are different, slept and rug. Four tokens are correct, what the model should have predicted and what the model actually predicted. So 4 out of 6 are correct.
+
+Incorrect tokens are two, slept and rug. It should be sat. And instead of rug, it should be mat. So there are 2 out of 6 incorrect tokens. So accuracy in this case is 4 by 6 into 100, 4 it got correct, so that's 67%. Now this is a very simplified example just to give you an idea of how this works.
+
+And the thing with accuracy is even if the model output conveys the same meaning but uses different words, accuracy may still be low. Correct. So this is why accuracy is not always the best metric for model fine tuning. So let's look at the next one, which is loss.
+
+Now loss, basically as we discussed earlier, measures how wrong the generated outputs of a model are. And it's calculated through a probability distribution difference between the model's prediction and the actual output. You're not getting into all the technical details, but let's bring up the previous example.
+
+So if the ground truth is the cat sat on the mat, like we saw in the previous slide, let's say the first model prediction after fine tuning said something like the cat slept on the rug. Exactly what we saw earlier. Now four tokens are correct here, "cat on the." Slept is similar to sat, you could argue. And rug is similar to mat. Could be different. Both are floor coverings and slept and sat are both verbs of rest.
+
+So in this case, even the accuracy is 67%, loss is relatively low as the mistakes are minor. The context is similar. You have slept instead of sat, and rug is similar to mat. So loss is not a huge number. It's relatively low because mistakes are minor and the context is important here.
+
+Now let's look at another model prediction. This is let's say you have done fine tuning again. And this is what the model predicted. The airplane flew at midnight. Now none of these words match the original sentence. And the generated sentence is completely irrelevant. It should have been cat sat on the mat or cat slept on the rug or whatever. It shouldn't be airplane and flying at midnight, et cetera.
+
+So in this case, the model output is completely irrelevant. And loss is very high as the model output is completely different from the ground truth. So just to compare, loss is the preferred metric compared to accuracy, because generative AI does not always have a single correct answer. The context is more important.
+
+So these are two metrics we use for figuring out the results of fine tuning of results. So hopefully, this lesson gives you a quick context on what training methods are supported, what some of these hyperparameters means, and then what actually we mean by using accuracy and loss to measure the results of fine tuning. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================
+Demo: Fine Tuning and Custom Models
+
+Welcome. In this demo, we are going to create a custom model. You can create custom models by fine-tuning the base pre-trained foundational model with your own custom dataset. Here, what we are going to do is to take a request coming from a human and rephrase it into the most accurate utterance that an AI virtual assistant should use.
+
+So we are replacing the human thing with an AI virtual assistant response. Now, we'll use this particular dataset from the paper, Sound Control Natural Rephrasing in Dialog Systems. And you can read through this paper. It contains a number of columns, the dataset which is with this paper.
+
+But to keep our examples simple, we'll need just the first, which is the human request and the last, the virtual assistants utterance columns. So this has many columns. We'll remove those other columns and just keep the human request column and the virtual assistant column because that's what we need.
+
+But the data has to be in a particular format because the generative AI service accepts data in a particular format only. So let me actually walk you through what that format looks like. So here, we have the format, which the OCI generative AI service accepts.
+
+And this is referred to as a JSONL file or a JSON lines file. And this is what is used for fine-tuning custom models in OCI. Now, JSONL is a file that contains a new JSON value or object on each line.
+
+The file isn't evaluated as a whole like a regular JSON file would be, but rather than each line is treated as if it was a separate JSON file. This format lends itself well for storing a set of inputs in a JSON format. So the format which OCI requires has to have these two properties.
+
+So you see, there's a property called prompt. And then there is a property called completion. So these are the two properties, which the file has to have. Each of these has to be on a new line. And these have to be UTF 8 encoded.
+
+So you have to make sure that you meet those requirements, otherwise your custom model creation will fail. And what I was referring to earlier as what we are doing in this example is we have this human request here. Which is, for example, the first line says, ask my aunt if she can go to the JDRF walk with me on October 6.
+
+And the virtual assistant would rephrase it to say, can you go to the JDRF walk with me on October 6? Something like that. And this particular file has some 2,000 plus examples like this.
+
+So what we are going to do is take this file, this is our custom data. And now, we are going to fine-tune one of the cohere command light models with this particular custom data. So let's see that in action.
+
+So here we are on the OCI generative console. And to create a custom model, I can click on the custom model link on the left hand side. And as I click that there, you can see there are no custom models existing in this particular compartment.
+
+So what I'll do is I'll kick off this workflow by clicking on create model here. And here, you can see, I can create a new model or I can create a new version of the model. These default values I will-- optional values, I will just leave them blank and click to the next menu.
+
+And here, I can choose my base model. Now, if you recall from the demo on dedicated AI cluster, this custom fine-tuning cluster which I created earlier actually has the small cohere unit. So we cannot use the command model because we have to match the base model to the cluster unit sizes.
+
+So I will pick the cohere command light. Because if you use cohere command, it requires a different unit size, the large cohere unit size. So I'll pick the cohere command light model here.
+
+And for the fine-tuning method, I have an option of choosing tfew or vanilla. I'll go with tfew, its parameter efficient fine-tuning method. And this is good for me because I have a smaller dataset, which is only 2,000 examples or so.
+
+And here, I'm picking the dedicated cluster, which I created earlier for fine-tuning called custom fine-tuning. And right below this, I have a set of hyperparameters. Now, I can just go with the default and see what kind of output I'm getting the accuracy and the loss matrix.
+
+And if those are not good, I can change them. But for now, these look good. So I'm happy with them. And I'll click next. And here, you can see that this content rephrasing JSON file appears in my training file.
+
+Because what I've done is I have uploaded this particular file to a bucket here and provided the right IM policies. So my service can actually access this particular file. And you can see the first five lines from this file.
+
+And the example we were looking at earlier is listed right here. And there is the prompt. And there is the completion. So this looks good. This is some 2,000 plus examples. And I'll hit submit here.
+
+And now, what this will do is this will kick off the fine-tuning process. If you recall from the theory lesson, we gathered the training data, which came from that paper. We change it to be in a JSONL format. Then basically, we had the dedicated AI cluster, which was created in an earlier step.
+
+And now, we kicked off the fine-tuning process. This process will take a few minutes to complete. And once the process will get completed, we will end up with a custom model.
+
+And we can look at some of the model performance numbers, namely accuracy and loss. So we'll come back here in a few minutes. And hopefully, the model, the custom model would have been created by that time.
+==============================================================================================================================
+Demo Inference Using Endpoint
+
+
+Lock
+[AUDIO LOGO]
+
+Welcome to this demo on endpoints for custom models. In the previous demo, we created a custom model. And as you can see here, the accuracy and the loss for this particular custom model looks really good. So to click on accuracy, if you click here, you can see accuracy, definition of how we define it. And what it says here, an accuracy of 0.9 means that 90% of the output tokens match the tokens in the training data set.
+
+So accuracy of 0.98 is actually pretty fantastic. And here you can see that loss should decrease as the model improves. And a loss of 0 means that all outputs were perfect, while a large number-- a large number for loss indicates highly random outputs. So loss is kind of trending towards 0 here.
+
+So these numbers are fantastic. So now let's go ahead and create an endpoint for this custom model. So I'll click on generative AI console and click on Endpoints here. And I'll click Create an Endpoint here. I can provide an optional name, a description, and right here, I can choose the model name. And now you can see that the pre-trained foundational models are listed here, as well as the custom model we just created is actually listed here as well.
+
+So I'll pick the custom model. And you can see the model version here. And right below that, you can choose a dedicated AI cluster. Now, we created a dedicated cluster in a previous demo. And there are no custom models running there or hosted there. So you can see that the remaining capacity is 50 because we are using the Preview fine tuning technique. And using that technique, you can host up to 50 custom models, each with their own endpoint.
+
+So 50 endpoints in total. And capacity is 50. So I can use one of that, 50. Right below. I can also check this content moderation. And the idea with content moderation is to remove toxic and biased content from responses. Since I know this data and it has 2,000 kind of rephrase-- statement. So I'm going to switch this content moderation off to the default state.
+
+And then I'll click on Create Endpoint here. And what this will do is in a few minutes, an endpoint will be created for me. And then I can test the endpoint by sending some production traffic by sending some prompt-- sample prompt from the test data set and see how well the custom model is behaving.
+
+So let me pause here and come back once the endpoint for the custom model is created. All right. So creating that endpoint took a few minutes. And now you can see the status is active. So if I go back to the generative AI dashboard and click on Playground, now if I look under the Model dropdown, I can see that I have my endpoint listed here.
+
+So literally, this is my endpoint, where I can send traffic and test various prompts. Now, you remember we got the matrix on accuracy and loss. Those matrix are good first indication of model's performance. But it is good to have some qualitative assessments too. So here what we are going to do is we are going to make a few calls to the base model and custom model and compare the results.
+
+This is a good way to-- general idea to evaluate generative models for accuracy. We ask it to predict certain words in the user uploaded data or the test data. So let's go ahead and give a prompt here and ask whether the prompt is-- turn this message to a virtual assistant into the correct action. Remember, the thing we are trying to solve with the custom model is to take a request coming from a human and rephrase it into the most accurate utterance that an AI virtual assistant should use.
+
+So if we give this kind of a request and click Generate here, you will see the response comes out as do you want to go to hiking in Yellowstone with me from 8 until 11th. And if I change the temperature to make it zero, I get the same response. If I make the temperature all the way to 5 and hit Generate, I get the same response.
+
+So what this shows is the custom model has pretty good predictability and can produce quality results consistently, even when the temperature is 0 or 1 or 5. You change going all the way from deterministic all the way to being creative. And now if I change this, and remember for this particular custom model, we use the Cohere Command light-based model, not the Cohere Command model.
+
+So if we use the command light, because this is the base model, which we used for creating this custom model and we did the fine tuning, and we give the same prompt, you will see that the prompt, which comes here is different. It says, "Hello Elon, would you be interested in joining me?" So this is not the kind of response, which AI assistant would use at least in the custom data we had.
+
+And one thing I just want to clarify is this particular statement is not in the training data set, which we used for training this custom model. This is in the test data set, which the model has never seen before. And so it is predicting certain words in this test data set. We're just giving one test data set to check the results.
+
+So hopefully, you are able to see how creating a custom model is beneficial because compared to the base model, the custom model has greater predictability and is producing quality results consistently. I hope you found this demo useful. Thanks for your time.
+==============================================================================================================================
+OCI Gen AI Security
+
+Welcome to this lesson on OCI Generative AI security. In this lesson, we'll look at the generative AI security architecture. So security and privacy of customer workloads is an essential design tenet. It's an essential design principle for us. And the way we ensure that is, the first thing we do is the GPUs allocated for a customer's generative tasks are isolated from other GPUs.
+
+So you see this dedicated AI cluster here, where we pool a specific set of GPUs, and run them within a dedicated RDMA network. And these GPUs are only allocated to a customer. And they're not shared across customers. So this is the first thing we do, where we give you dedicated GPUs, and a dedicated RDMA network.
+
+Now, just taking it further, your dedicated GPU cluster handles only your models, only your base models and your fine tuned models for you as a customer, for a single customer. So you can see here, we have the dedicated AI cluster, where we are running the base model endpoint. And we are also running the custom model endpoints. They're all running, and contained within these set of GPUs. And this ensures model isolation and data isolation for customers.
+
+And the customer data access is restricted within the customer's tenancy, so that one customer's data cannot be seen by another customer. Only a customer's application can access custom models created and hosted from within the customer's tenancy. So you can see here, we have two customers, Customer 1 and Customer 2.
+
+Customer 1 is running a couple of custom models. And Customer 2 is running another custom model here. Each of them have their own dedicated AI clusters. And their applications can only access the models which are running in their own dedicated AI clusters. So this particular application here, for Customer 2, cannot access any of the custom models here, from Customer 1, and so on and so forth.
+
+So this is the way we ensure that customer data is completely isolated, and the customer models are also completely isolated and contained within their own dedicated AI clusters.
+
+Finally, the Generative AI service also leverages other OCI security services. So, for example, OCI Identity and Access Management service is leveraged for authentication and authorization. So, the example which is being shown here, you have two applications. You can decide that Application X can leverage this custom model X. And Application Y could leverage base model.
+
+So you can decide what level of authorization they have, what level of access they have. And you can also decide authentication, who has access to these models, and what set of users can actually use these models. So that's the first service which Generative AI service leverages.
+
+The second security service it leverages is Key Management. And Key Management is where we store all the base model keys securely. And then we also leverage the OCI Object Storage service, where we store the fine tune model weights. These are very important. And so you can see the model weights for the base model. And let's say the custom model X is stored here in these object storage buckets. These are encrypted by default. And the keys are managed by the key management service.
+
+Basically the idea is, the OCI Generative AI service builds upon the various security services available in the OCI platform. So this was a quick lesson, where we discussed how security and privacy are essential design principles. We looked at dedicated GPU, dedicated RDMA network, and how customer data and models are isolated, and how the service leverages other secure OCI security services, like IAM and Key Management for encryption. I hope you found this lesson useful. Thanks for your time.
+==============================================================================================================================

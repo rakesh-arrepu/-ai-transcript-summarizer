@@ -1,0 +1,31 @@
+{
+  "chunk_id" : "8",
+  "title" : "LLM Hallucination Mitigation and Applications (RAG and Code Models)",
+  "summary" : "This chunk covers hallucination mitigation strategies for LLMs, including retrieval-augmented generation (RAG) systems that reduce hallucinations by providing external documents as context. It also introduces code models like Codex and Co-pilot that excel at code completion and documentation tasks due to code's structured nature.",
+  "key_points" : [ "All LLM text generation is considered hallucinated, but most happens to be correct", "No known method can eliminate hallucination with 100% certainty", "RAG systems reduce hallucinations by providing external document context", "Code models excel at completion tasks due to code's structured, less ambiguous nature" ],
+  "workflows" : [ {
+    "name" : "Retrieval Augmented Generation (RAG)",
+    "steps" : [ "User provides input question", "System transforms question into search query", "Query searches document database/corpus", "Relevant documents are returned", "Documents provided to LLM along with original question", "LLM generates answer using both question and retrieved context" ],
+    "notes" : "Provides non-parametric improvement mechanism - can add more documents without modifying the model"
+  }, {
+    "name" : "Natural Language Inference (NLI) for Groundedness",
+    "steps" : [ "Take LLM-generated sentence", "Take candidate supporting document", "Train separate model to perform NLI", "Output whether document supports the sentence or not" ],
+    "notes" : "Used to measure groundedness of LLM output"
+  } ],
+  "definitions" : [ {
+    "term" : "Hallucination",
+    "definition" : "LLM-generated text that contains non-factual statements, either blatant or subtle"
+  }, {
+    "term" : "Retrieval Augmented Generation (RAG)",
+    "definition" : "System that searches external documents to provide context to LLMs for more accurate responses"
+  }, {
+    "term" : "Natural Language Inference (NLI)",
+    "definition" : "Task of predicting whether a premise entails a hypothesis - used to verify if supporting text implies generated content"
+  }, {
+    "term" : "Code Models",
+    "definition" : "LLMs specifically trained on code, comments, and documentation for code completion tasks"
+  } ],
+  "examples" : [ "Customer service RAG system using software documentation to answer user questions", "Code completion models like Co-pilot, Codex, and Code Llama", "Multi-document question-answering systems using RAG" ],
+  "exam_pointers" : [ "No method can eliminate LLM hallucination with 100% certainty", "RAG systems hallucinate less than zero-shot LLMs", "RAG provides non-parametric improvement by adding documents without changing the model", "Code models perform better due to code's structured and less ambiguous nature" ],
+  "confidence" : "high"
+}

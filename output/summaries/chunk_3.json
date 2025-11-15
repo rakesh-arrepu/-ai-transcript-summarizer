@@ -1,0 +1,31 @@
+{
+  "chunk_id" : "3",
+  "title" : "Prompting and In-Context Learning",
+  "summary" : "Prompting involves altering input text to change model output distributions. Pre-trained models learn word associations during training. Prompt engineering is the iterative refinement of inputs to achieve desired outputs, with in-context learning being a key strategy where k-shot examples demonstrate the task without parameter changes.",
+  "key_points" : [ "Prompting changes input text to alter probability distributions over vocabulary words", "Pre-training teaches models word associations and context patterns from large text datasets", "Prompt engineering is challenging and unintuitive but can be highly valuable for specific tasks", "In-context learning uses k-shot examples to demonstrate tasks without changing model parameters", "Zero-shot prompting provides no examples, while k-shot provides k demonstration examples" ],
+  "workflows" : [ {
+    "name" : "Prompt Engineering Process",
+    "steps" : [ "Identify the specific task and model", "Craft initial input prompt", "Generate text from model", "Evaluate generated text quality", "Iteratively refine prompt input", "Test small changes and observe effects" ],
+    "notes" : "Process is challenging and effects of changes are unpredictable"
+  }, {
+    "name" : "K-shot Prompting Setup",
+    "steps" : [ "Include k demonstration examples of the desired task", "Add task description/instructions", "Provide incomplete final example for model to complete", "Generate model response" ],
+    "notes" : "More demonstrations generally work better than zero-shot"
+  } ],
+  "definitions" : [ {
+    "term" : "Prompting",
+    "definition" : "Altering the content or structure of input text passed to a language model to change output distributions"
+  }, {
+    "term" : "Prompt Engineering",
+    "definition" : "The iterative process of refining model inputs to induce desired probability distributions for specific tasks"
+  }, {
+    "term" : "In-context Learning",
+    "definition" : "Constructing prompts with task demonstrations without changing model parameters"
+  }, {
+    "term" : "K-shot Prompting",
+    "definition" : "Including k examples of the desired task in the prompt, where k=0 is zero-shot"
+  } ],
+  "examples" : [ "Adding 'little' to text increases probability of smaller animals in output", "GPT-3 three-shot translation prompt with English-to-French examples", "Two-shot addition prompt showing '1+1=2' and '2+3=5' before asking '1+8='", "MPT-Instruct prompt with specific behavioral instructions" ],
+  "exam_pointers" : [ "Pre-training teaches models word associations from large varied text datasets", "Small input changes (even whitespace) can dramatically affect output distributions", "K-shot prompting generally outperforms zero-shot prompting", "In-context learning doesn't change model parameters, only input structure" ],
+  "confidence" : "high"
+}

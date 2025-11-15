@@ -1,0 +1,35 @@
+{
+  "chunk_id" : "9",
+  "title" : "Limitations and Advanced Applications of Language Models",
+  "summary" : "This chunk covers limitations of current code models (only fixing bugs 15% of the time), introduces multi-modal models and diffusion techniques, explains language agents for sequential decision-making, and discusses emerging capabilities in tool usage and reasoning for complex tasks.",
+  "key_points" : [ "Code models struggle with complex tasks, automatically patching bugs less than 15% of the time", "Multi-modal models work with text, images, and audio using different generation techniques", "Language agents operate in environments, taking sequential actions to achieve goals", "Tool usage and reasoning capabilities are expanding LLM applications significantly" ],
+  "workflows" : [ {
+    "name" : "Diffusion Model Generation",
+    "steps" : [ "Start with noise image", "Iteratively refine all pixels simultaneously", "Continue until coherent image emerges" ],
+    "notes" : "Generates images all at once rather than pixel by pixel"
+  }, {
+    "name" : "Language Agent Operation",
+    "steps" : [ "Observe environment", "Take action toward goal", "Receive environment response", "Continue actions until goal achieved", "Terminate when complete" ],
+    "notes" : "Sequential decision-making process"
+  }, {
+    "name" : "ReAct Framework",
+    "steps" : [ "Prompt model to emit thoughts", "Summarize current goal", "Review accomplished steps", "Plan next required steps" ],
+    "notes" : "Framework for leveraging LLMs as language agents"
+  } ],
+  "definitions" : [ {
+    "term" : "Multi-modal models",
+    "definition" : "Models trained on multiple data types like text, images, and audio"
+  }, {
+    "term" : "Diffusion models",
+    "definition" : "Models that generate images by starting with noise and iteratively refining all pixels simultaneously"
+  }, {
+    "term" : "Language agents",
+    "definition" : "Models designed for sequential decision-making in environments to accomplish specific goals"
+  }, {
+    "term" : "ReAct",
+    "definition" : "Framework for using LLMs as agents by prompting them to emit thoughts about goals and progress"
+  } ],
+  "examples" : [ "Code models automatically patching real bugs less than 15% of the time", "Language agent buying an ambiguously described product through search and page visits", "LLM using calculator API instead of performing arithmetic through text generation" ],
+  "exam_pointers" : [ "Current code models have significant limitations with complex bug fixing", "Diffusion models generate images all at once, unlike LLMs which generate text sequentially", "Language agents take sequential actions in environments until goals are achieved", "Tool usage allows LLMs to perform computations through APIs rather than text generation" ],
+  "confidence" : "high"
+}

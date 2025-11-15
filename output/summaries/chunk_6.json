@@ -1,0 +1,31 @@
+{
+  "chunk_id" : "6",
+  "title" : "Soft Prompting, Continual Pre-training, Training Costs, and Decoding Introduction",
+  "summary" : "This chunk introduces soft prompting as a training method where learnable parameters are added to prompts, discusses continual pre-training for domain adaptation, presents training cost comparisons across methods and model sizes, and begins coverage of decoding strategies including greedy decoding for text generation.",
+  "key_points" : [ "Soft prompting adds learnable parameters to prompts that are fine-tuned during training", "Continual pre-training adapts models to new domains using unlabeled data and next-word prediction", "Training costs vary dramatically from single GPUs for generation to thousands of GPUs for pre-training", "Decoding is an iterative process that generates text one word at a time", "Greedy decoding selects the highest probability word at each step" ],
+  "workflows" : [ {
+    "name" : "Soft Prompting Training",
+    "steps" : [ "Add learnable parameters to prompt as specialized 'words'", "Initialize parameters randomly", "Iteratively fine-tune parameters during training" ],
+    "notes" : "Different from methods like LoRA"
+  }, {
+    "name" : "Greedy Decoding Process",
+    "steps" : [ "Feed input text to model", "Model produces probability distribution over vocabulary", "Select word with highest probability", "Append selected word to input", "Feed revised input back to model", "Repeat until EOS token is selected" ],
+    "notes" : "Deterministic, one word at a time"
+  } ],
+  "definitions" : [ {
+    "term" : "Soft prompting",
+    "definition" : "Training method that adds learnable parameters to prompts as specialized words to cue specific tasks"
+  }, {
+    "term" : "Continual pre-training",
+    "definition" : "Training approach that changes all model parameters using unlabeled data for next-word prediction"
+  }, {
+    "term" : "Greedy decoding",
+    "definition" : "Text generation strategy that selects the word with highest probability at each step"
+  }, {
+    "term" : "EOS token",
+    "definition" : "End Of Sentence/Sequence token indicating when model should stop generating"
+  } ],
+  "examples" : [ "Adapting general text model to scientific domain through continual pre-training", "7-billion parameter model generating text on single GPU in seconds", "Zoo pet example: 'They sent me a dog' with EOS token indicating completion" ],
+  "exam_pointers" : [ "Soft prompting uses learnable parameters in prompts, unlike static prompting", "Training costs scale dramatically: generation uses 1 GPU, pre-training uses hundreds-thousands", "Decoding happens iteratively one word at a time, not whole sentences", "Greedy decoding always picks highest probability word deterministically" ],
+  "confidence" : "high"
+}
