@@ -11,6 +11,9 @@ Convert lecture transcripts into comprehensive, exam-ready study materials autom
   - Flashcards (CSV format for Anki/Quizlet)
   - Practice questions (MCQ, short-answer, long-form)
   - Quick revision sheets (1-page summary)
+- **Multi-File Processing**: Process multiple transcripts with configurable modes:
+  - **Separate Mode**: Each transcript gets its own study materials (default)
+  - **Combined Mode**: Merge all transcripts into one comprehensive guide
 - **Multi-Model Support**: Claude 3.5 Sonnet, GPT-4o, and Gemini 2.5 Pro
 - **Cost Optimization**: Save up to 77-95% using Gemini instead of Claude+GPT
 - **Quality Tracking**: Confidence levels for each summary item
@@ -120,20 +123,49 @@ Follow the menu to:
 ### 6. Outputs
 
 Generated files appear in `output/`:
+
+**Separate Mode** (default - `MULTI_FILE_MODE=separate`):
 ```
 output/
 ├── chunks/
-│   └── lesson1_chunks.json          # Chunked transcripts
+│   ├── Section-Fundamentals_chunks.json
+│   └── Section-RAG_chunks.json
 ├── summaries/
-│   ├── chunk_1.json
+│   ├── Section-Fundamentals/
+│   │   ├── chunk_1.json
+│   │   └── chunk_2.json
+│   └── Section-RAG/
+│       └── chunk_1.json
+├── consolidated/
+│   ├── Section-Fundamentals_master_notes.md
+│   └── Section-RAG_master_notes.md
+└── exam_materials/
+    ├── Section-Fundamentals/
+    │   ├── flashcards.csv
+    │   ├── practice_questions.md
+    │   └── quick_revision.md
+    └── Section-RAG/
+        ├── flashcards.csv
+        ├── practice_questions.md
+        └── quick_revision.md
+```
+
+**Combined Mode** (`MULTI_FILE_MODE=combined`):
+```
+output/
+├── chunks/
+│   ├── Section-Fundamentals_chunks.json
+│   └── Section-RAG_chunks.json
+├── summaries/
+│   ├── chunk_1.json (from all files)
 │   ├── chunk_2.json
 │   └── ...
 ├── consolidated/
-│   └── master_notes.md              # Main study document
+│   └── master_notes.md              # Combined from all files
 └── exam_materials/
-    ├── flashcards.csv               # For Anki/Quizlet
-    ├── practice_questions.md        # Test yourself
-    └── quick_revision.md            # 1-page summary
+    ├── flashcards.csv               # From all files
+    ├── practice_questions.md        # From all files
+    └── quick_revision.md            # From all files
 ```
 
 ## 📚 Workflow
@@ -231,6 +263,11 @@ TRANSCRIPT_DIR=transcripts
 OUTPUT_DIR=output
 LOGS_DIR=logs
 
+# Multi-file processing mode
+# - separate: Each transcript gets its own study materials (default)
+# - combined: Merge all transcripts into one comprehensive output
+MULTI_FILE_MODE=separate
+
 # ============================================================================
 # CHUNKING PARAMETERS
 # ============================================================================
@@ -284,6 +321,79 @@ GEMINI_API_KEY=AIzaSy_your_key_from_https://aistudio.google.com/app/apikey
 
 For detailed Gemini integration guide, see [GEMINI_INTEGRATION_GUIDE.md](./GEMINI_INTEGRATION_GUIDE.md)
 
+## 📁 Multi-File Processing
+
+Process multiple transcript files with two configurable modes:
+
+### Separate Mode (Default)
+
+Each transcript file gets its own complete set of study materials.
+
+**Use when:**
+
+- Transcripts cover different, unrelated topics
+- You want to study each subject individually
+- You need separate flashcard decks per topic
+- Cost is not a major concern (more API calls)
+
+**Configuration:**
+```env
+MULTI_FILE_MODE=separate
+```
+
+**Example:**
+
+```text
+transcripts/
+├── Section-Fundamentals.txt
+├── Section-RAG.txt
+└── Section-Chatbot.txt
+
+→ Produces 3 separate master notes, 3 sets of flashcards, etc.
+```
+
+### Combined Mode
+
+All transcript files are merged into one comprehensive output.
+
+**Use when:**
+
+- Transcripts are related chapters/sections of same course
+- You want one unified study guide
+- You want to minimize API costs (fewer calls)
+- You want cross-topic connections in summaries
+
+**Configuration:**
+```env
+MULTI_FILE_MODE=combined
+```
+
+**Example:**
+
+```text
+transcripts/
+├── Section-Fundamentals.txt
+├── Section-RAG.txt
+└── Section-Chatbot.txt
+
+→ Produces 1 master note combining all topics, 1 unified flashcard deck, etc.
+```
+
+### Switching Between Modes
+
+Simply change the setting in your `.env` file:
+
+```bash
+# Edit .env file
+nano .env
+
+# Change MULTI_FILE_MODE=separate to MULTI_FILE_MODE=combined
+# Or vice versa
+
+# Run pipeline again
+java -jar target/transcript-pipeline.jar
+```
+
 ## 📖 Configuration Defaults
 
 If not specified in `.env`:
@@ -293,6 +403,7 @@ If not specified in `.env`:
 | `TRANSCRIPT_DIR` | `transcripts` |
 | `OUTPUT_DIR` | `output` |
 | `LOGS_DIR` | `logs` |
+| `MULTI_FILE_MODE` | `separate` |
 | `CHUNK_SIZE` | 1500 tokens |
 | `CHUNK_OVERLAP` | 200 tokens |
 | `API_TIMEOUT` | 60 seconds |

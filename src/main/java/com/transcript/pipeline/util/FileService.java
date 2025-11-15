@@ -164,4 +164,42 @@ public class FileService {
         logger.info("Deleting file: {}", filePath);
         Files.deleteIfExists(Paths.get(filePath));
     }
+
+    /**
+     * Sanitize filename by removing extension and special characters
+     */
+    public static String sanitizeFileName(String fileName) {
+        // Remove .txt extension
+        String sanitized = fileName.replaceAll("\\.txt$", "");
+        // Remove or replace special characters that might cause issues
+        sanitized = sanitized.replaceAll("[<>:\"/\\\\|?*]", "_");
+        return sanitized;
+    }
+
+    /**
+     * Generate file-specific summary output directory path
+     * Example: output/summaries/Section- Fundamentals of Large Language Models/
+     */
+    public static String generateSummaryOutputDir(String baseOutputDir, String fileName) {
+        String sanitized = sanitizeFileName(fileName);
+        return baseOutputDir + "/summaries/" + sanitized;
+    }
+
+    /**
+     * Generate file-specific consolidated master notes path
+     * Example: output/consolidated/Section- Fundamentals of Large Language Models_master_notes.md
+     */
+    public static String generateConsolidatedPath(String baseOutputDir, String fileName) {
+        String sanitized = sanitizeFileName(fileName);
+        return baseOutputDir + "/consolidated/" + sanitized + "_master_notes.md";
+    }
+
+    /**
+     * Generate file-specific exam materials directory path
+     * Example: output/exam_materials/Section- Fundamentals of Large Language Models/
+     */
+    public static String generateExamMaterialsDir(String baseOutputDir, String fileName) {
+        String sanitized = sanitizeFileName(fileName);
+        return baseOutputDir + "/exam_materials/" + sanitized;
+    }
 }
