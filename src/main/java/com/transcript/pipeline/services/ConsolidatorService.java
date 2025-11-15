@@ -4,6 +4,7 @@ import com.transcript.pipeline.config.ConfigManager;
 import com.transcript.pipeline.models.ChunkSummary;
 import com.transcript.pipeline.util.ApiClient;
 import com.transcript.pipeline.util.FileService;
+import com.transcript.pipeline.util.FlowsGenerator;
 import com.transcript.pipeline.util.TextProcessingUtil;
 import java.io.IOException;
 import java.util.List;
@@ -349,6 +350,20 @@ public class ConsolidatorService {
                 - Practice past exam questions
 
                 """;
+    }
+
+    /**
+     * Generate flows and diagrams from summaries (optional feature).
+     * Creates visual representations of workflows and pipeline execution.
+     */
+    public void generateAndSaveFlows(List<ChunkSummary> summaries, String outputBaseDir) {
+        try {
+            logger.info("Generating flows from {} summaries", summaries.size());
+            FlowsService.generateFlows(summaries, outputBaseDir);
+            logger.info("✓ Flows generation complete");
+        } catch (Exception e) {
+            logger.warn("Error generating flows", e);
+        }
     }
 
     /**
