@@ -7,7 +7,12 @@ import com.transcript.pipeline.services.ChunkerService;
 import com.transcript.pipeline.services.ConsolidatorService;
 import com.transcript.pipeline.services.FlowsService;
 import com.transcript.pipeline.services.SummarizerService;
+import com.transcript.pipeline.util.ConsoleColors;
+import com.transcript.pipeline.util.CostTracker;
 import com.transcript.pipeline.util.FileService;
+import com.transcript.pipeline.util.TextProcessingUtil;
+import com.transcript.pipeline.util.ValidationResult;
+import com.transcript.pipeline.util.ValidationService;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -47,15 +52,29 @@ public class App {
      */
     public static void main(String[] args) {
         try {
-            // Validate API keys first
-            if (!ConfigManager.validateApiKeys()) {
-                System.err.println("\n❌ ERROR: API keys not configured!");
-                System.err.println("Please set CLAUDE_API_KEY and OPENAI_API_KEY environment variables");
-                System.err.println("Or create a .env file in the project root directory");
+            // Display banner
+            ConsoleColors.printHeader("Transcript → Exam Notes Pipeline v" + VERSION);
+
+            // Run startup validation
+            System.out.println();
+            ConsoleColors.printSection("Startup Validation");
+            System.out.println();
+
+            // Validate configuration
+            System.out.print("Checking configuration... ");
+            ValidationResult configCheck = ValidationService.validatePipelineConfiguration();
+            System.out.println();
+            configCheck.print();
+
+            if (configCheck.isError()) {
+                System.out.println();
+                ConsoleColors.printError("Configuration validation failed. Cannot start application.");
                 System.exit(1);
             }
 
+            System.out.println();
             ConfigManager.printSummary();
+
             App app = new App();
 
             if (args.length == 0) {
@@ -154,21 +173,67 @@ public class App {
             String outputDir = ConfigManager.get(ConfigManager.OUTPUT_DIR);
             String multiFileMode = ConfigManager.get(ConfigManager.MULTI_FILE_MODE, "separate").toLowerCase();
 
+            // Get list of transcript files
+            List<File> transcriptFiles = FileService.listFilesInDirectory(transcriptDir, ".txt");
+            if (transcriptFiles.isEmpty()) {
+                ConsoleColors.printError("No transcript files found in " + transcriptDir);
+                ConsoleColors.printInfo("Place .txt transcript files in the " + transcriptDir + "/ directory");
+                return;
+            }
+
+            System.out.println("\n🔍 Found " + transcriptFiles.size() + " transcript file(s)");
+            System.out.println("⚙️  Multi-File Mode: " + multiFileMode.toUpperCase());
+            System.out.println();
+
+            // Validate first transcript file (as representative sample)
+            List<ValidationResult> validationResults = ValidationService.runPreFlightChecks(
+                transcriptFiles.get(0).getAbsolutePath()
+            );
+
+            if (!ValidationService.canProceed(validationResults)) {
+                return;
+            }
+
+            // Show cost estimate
+            System.out.println();
+            int totalTokens = 0;
+            for (File file : transcriptFiles) {
+                try {
+                    String content = FileService.readTextFile(file.getAbsolutePath());
+                    totalTokens += TextProcessingUtil.estimateTokenCount(content);
+                } catch (Exception e) {
+                    logger.warn("Failed to estimate tokens for {}", file.getName(), e);
+                }
+            }
+
+            String summarizerModel = ConfigManager.get(ConfigManager.SUMMARIZER_MODEL, "claude");
+            String consolidatorModel = ConfigManager.get(ConfigManager.CONSOLIDATOR_MODEL, "gpt");
+
+            CostTracker.CostEstimate estimate = CostTracker.estimateTranscriptCost(
+                totalTokens, summarizerModel, consolidatorModel
+            );
+
+            System.out.println(estimate.formatEstimate());
+
+            // Confirm before proceeding
+            System.out.print("Continue with pipeline execution? (y/n): ");
+            String confirm = scanner.nextLine().trim().toLowerCase();
+            if (!confirm.equals("y") && !confirm.equals("yes")) {
+                ConsoleColors.printWarning("Pipeline cancelled by user");
+                return;
+            }
+
             // Create output directories
             FileService.createDirectoryIfNotExists(outputDir + "/chunks");
             FileService.createDirectoryIfNotExists(outputDir + "/summaries");
             FileService.createDirectoryIfNotExists(outputDir + "/consolidated");
             FileService.createDirectoryIfNotExists(outputDir + "/exam_materials");
 
-            // Get list of transcript files
-            List<File> transcriptFiles = FileService.listFilesInDirectory(transcriptDir, ".txt");
-            if (transcriptFiles.isEmpty()) {
-                System.out.println("❌ No transcript files found in " + transcriptDir);
-                return;
-            }
+            System.out.println();
+            ConsoleColors.printDoubleSeparator();
+            ConsoleColors.printHeader("STARTING PIPELINE EXECUTION");
 
-            System.out.println("\n🔍 Found " + transcriptFiles.size() + " transcript file(s)");
-            System.out.println("⚙️  Multi-File Mode: " + multiFileMode.toUpperCase());
+            long pipelineStartTime = System.currentTimeMillis();
 
             if ("separate".equals(multiFileMode)) {
                 // Process each file separately
@@ -178,8 +243,20 @@ public class App {
                 runPipelineInCombinedMode(transcriptFiles, outputDir);
             }
 
+            long pipelineTotalTime = System.currentTimeMillis() - pipelineStartTime;
+
+            System.out.println();
+            ConsoleColors.printDoubleSeparator();
+            ConsoleColors.printSuccess("PIPELINE COMPLETE!");
+            System.out.println();
+            System.out.println("Total execution time: " + ConsoleColors.formatTime(pipelineTotalTime));
+            System.out.println("Files processed: " + transcriptFiles.size());
+            System.out.println("Output directory: " + new File(outputDir).getAbsolutePath());
+            ConsoleColors.printDoubleSeparator();
+
         } catch (Exception e) {
-            System.out.println("❌ Pipeline error: " + e.getMessage());
+            System.out.println();
+            ConsoleColors.printError("Pipeline error: " + e.getMessage());
             logger.error("Pipeline error", e);
         }
     }
