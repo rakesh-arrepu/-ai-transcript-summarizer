@@ -5,6 +5,7 @@ import com.transcript.pipeline.models.ChunkSummary;
 import com.transcript.pipeline.models.TextChunk;
 import com.transcript.pipeline.services.ChunkerService;
 import com.transcript.pipeline.services.ConsolidatorService;
+import com.transcript.pipeline.services.FlowsService;
 import com.transcript.pipeline.services.SummarizerService;
 import com.transcript.pipeline.util.FileService;
 import java.io.File;
@@ -90,11 +91,12 @@ public class App {
             System.out.println("3. Summarize chunks only");
             System.out.println("4. Consolidate to master notes");
             System.out.println("5. Generate exam materials (flashcards, practice questions)");
-            System.out.println("6. View pipeline status");
-            System.out.println("7. Settings");
-            System.out.println("8. Help");
+            System.out.println("6. Generate flows and diagrams (optional visualization)");
+            System.out.println("7. View pipeline status");
+            System.out.println("8. Settings");
+            System.out.println("9. Help");
             System.out.println("0. Exit");
-            System.out.print("\n👉 Choose an option (0-8): ");
+            System.out.print("\n👉 Choose an option (0-9): ");
 
             String choice = scanner.nextLine().trim();
 
@@ -115,12 +117,15 @@ public class App {
                     runExamMaterials(scanner);
                     break;
                 case "6":
-                    viewPipelineStatus();
+                    generateFlows(scanner);
                     break;
                 case "7":
-                    displaySettings();
+                    viewPipelineStatus();
                     break;
                 case "8":
+                    displaySettings();
+                    break;
+                case "9":
                     displayHelp();
                     break;
                 case "0":
@@ -147,6 +152,7 @@ public class App {
             }
 
             String outputDir = ConfigManager.get(ConfigManager.OUTPUT_DIR);
+            String multiFileMode = ConfigManager.get(ConfigManager.MULTI_FILE_MODE, "separate").toLowerCase();
 
             // Create output directories
             FileService.createDirectoryIfNotExists(outputDir + "/chunks");
@@ -162,11 +168,111 @@ public class App {
             }
 
             System.out.println("\n🔍 Found " + transcriptFiles.size() + " transcript file(s)");
+            System.out.println("⚙️  Multi-File Mode: " + multiFileMode.toUpperCase());
 
-            // Step 1: Chunking
-            System.out.println("\n\n⏳ STEP 1: CHUNKING TRANSCRIPTS");
+            if ("separate".equals(multiFileMode)) {
+                // Process each file separately
+                runPipelineInSeparateMode(transcriptFiles, outputDir);
+            } else {
+                // Process all files combined
+                runPipelineInCombinedMode(transcriptFiles, outputDir);
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Pipeline error: " + e.getMessage());
+            logger.error("Pipeline error", e);
+        }
+    }
+
+    /**
+     * Run pipeline in SEPARATE mode - each file gets its own output
+     */
+    private void runPipelineInSeparateMode(List<File> transcriptFiles, String outputDir) {
+        System.out.println("\n📋 Processing each file separately with individual outputs\n");
+
+        for (int i = 0; i < transcriptFiles.size(); i++) {
+            File file = transcriptFiles.get(i);
+            System.out.println("\n" + "=".repeat(70));
+            System.out.println("📄 FILE " + (i + 1) + "/" + transcriptFiles.size() + ": " + file.getName());
+            System.out.println("=".repeat(70));
+
+            try {
+                // Step 1: Chunking
+                System.out.println("\n⏳ STEP 1: CHUNKING");
+                List<TextChunk> chunks = chunkerService.chunkTranscript(file.getAbsolutePath());
+                String chunkOutputPath = FileService.generateChunkOutputPath(outputDir, file.getName());
+                chunkerService.saveChunks(chunks, chunkOutputPath);
+                System.out.println("✅ Created " + chunks.size() + " chunks");
+
+                // Step 2: Summarization
+                System.out.println("\n⏳ STEP 2: SUMMARIZING");
+                List<ChunkSummary> summaries = summarizerService.summarizeChunks(chunks);
+                String summaryDir = FileService.generateSummaryOutputDir(outputDir, file.getName());
+                FileService.createDirectoryIfNotExists(summaryDir);
+                summarizerService.saveSummaries(summaries, summaryDir);
+                System.out.println("✅ " + summarizerService.getSummaryStatistics(summaries));
+
+                // Step 3: Consolidation
+                System.out.println("\n⏳ STEP 3: CONSOLIDATING");
+                String masterNotes = consolidatorService.consolidateToMasterNotes(summaries);
+                String consolidatedPath = FileService.generateConsolidatedPath(outputDir, file.getName());
+                consolidatorService.saveMasterNotes(masterNotes, consolidatedPath);
+                System.out.println("✅ Master notes created");
+
+                // Step 4: Exam Materials
+                System.out.println("\n⏳ STEP 4: GENERATING EXAM MATERIALS");
+                String examDir = FileService.generateExamMaterialsDir(outputDir, file.getName());
+                FileService.createDirectoryIfNotExists(examDir);
+
+                String flashcards = consolidatorService.generateFlashcards(masterNotes, summaries);
+                consolidatorService.saveFlashcards(flashcards, examDir + "/flashcards.csv");
+                System.out.println("✅ Flashcards generated");
+
+                String practiceQuestions = consolidatorService.generatePracticeQuestions(masterNotes);
+                consolidatorService.savePracticeQuestions(practiceQuestions, examDir + "/practice_questions.md");
+                System.out.println("✅ Practice questions generated");
+
+                String quickRevision = consolidatorService.generateQuickRevision(masterNotes);
+                consolidatorService.saveQuickRevision(quickRevision, examDir + "/quick_revision.md");
+                System.out.println("✅ Quick revision sheet generated");
+
+                // Optional: Generate flows and diagrams
+                System.out.println("\n⏳ OPTIONAL: GENERATING FLOWS & DIAGRAMS");
+                consolidatorService.generateAndSaveFlows(summaries, outputDir);
+                System.out.println("✅ Flows diagrams generated");
+
+                System.out.println("\n✨ FILE COMPLETE: " + file.getName());
+                System.out.println("📁 Master notes: " + consolidatedPath);
+                System.out.println("📁 Exam materials: " + examDir + "/");
+                System.out.println("📊 Flows diagrams: " + outputDir + "/flows/");
+
+            } catch (Exception e) {
+                System.out.println("❌ Error processing " + file.getName() + ": " + e.getMessage());
+                logger.error("Error processing file: " + file.getName(), e);
+            }
+        }
+
+        System.out.println("\n\n" + "=".repeat(70));
+        System.out.println("✨ ALL FILES PROCESSED!");
+        System.out.println("=".repeat(70));
+        System.out.println("📁 Output directory: " + outputDir + "/");
+        System.out.println("📝 Master notes: " + outputDir + "/consolidated/");
+        System.out.println("📚 Exam materials: " + outputDir + "/exam_materials/");
+    }
+
+    /**
+     * Run pipeline in COMBINED mode - all files merged into one output
+     */
+    private void runPipelineInCombinedMode(List<File> transcriptFiles, String outputDir) {
+        System.out.println("\n📋 Processing all files combined into single output\n");
+
+        try {
+            // Step 1: Chunking all files
+            System.out.println("\n⏳ STEP 1: CHUNKING ALL TRANSCRIPTS");
             System.out.println("═".repeat(60));
-            List<TextChunk> allChunks = null;
+
+            java.util.List<TextChunk> allChunks = new java.util.ArrayList<>();
+            int totalChunks = 0;
 
             for (File file : transcriptFiles) {
                 System.out.println("\n📄 Processing: " + file.getName());
@@ -175,59 +281,83 @@ public class App {
                     String outputPath = FileService.generateChunkOutputPath(outputDir, file.getName());
                     chunkerService.saveChunks(chunks, outputPath);
                     System.out.println("✅ Created " + chunks.size() + " chunks");
-                    allChunks = chunks; // Keep reference to last file's chunks
+
+                    // Make chunk IDs unique by prefixing with filename
+                    for (TextChunk chunk : chunks) {
+                        String uniqueId = FileService.sanitizeFileName(file.getName()) + "_" + chunk.getChunkId();
+                        TextChunk uniqueChunk = new TextChunk(
+                            uniqueId,
+                            chunk.getTitle(),
+                            chunk.getText(),
+                            chunk.getSourceFile(),
+                            chunk.getStartLine(),
+                            chunk.getEndLine()
+                        );
+                        allChunks.add(uniqueChunk);
+                    }
+                    totalChunks += chunks.size();
                 } catch (Exception e) {
                     System.out.println("❌ Error chunking " + file.getName() + ": " + e.getMessage());
                 }
             }
 
-            // Step 2: Summarization
-            if (allChunks != null && !allChunks.isEmpty()) {
-                System.out.println("\n\n⏳ STEP 2: SUMMARIZING CHUNKS");
-                System.out.println("═".repeat(60));
-
-                try {
-                    List<ChunkSummary> summaries = summarizerService.summarizeChunks(allChunks);
-                    summarizerService.saveSummaries(summaries, outputDir + "/summaries");
-                    System.out.println("✅ " + summarizerService.getSummaryStatistics(summaries));
-
-                    // Step 3: Consolidation
-                    System.out.println("\n\n⏳ STEP 3: CONSOLIDATING TO MASTER NOTES");
-                    System.out.println("═".repeat(60));
-
-                    String masterNotes = consolidatorService.consolidateToMasterNotes(summaries);
-                    consolidatorService.saveMasterNotes(masterNotes, outputDir + "/consolidated/master_notes.md");
-                    System.out.println("✅ Master notes created");
-
-                    // Generate exam materials
-                    System.out.println("\n⏳ Generating exam materials...");
-                    String flashcards = consolidatorService.generateFlashcards(masterNotes, summaries);
-                    consolidatorService.saveFlashcards(flashcards, outputDir + "/exam_materials/flashcards.csv");
-                    System.out.println("✅ Flashcards generated");
-
-                    String practiceQuestions = consolidatorService.generatePracticeQuestions(masterNotes);
-                    consolidatorService.savePracticeQuestions(practiceQuestions, outputDir + "/exam_materials/practice_questions.md");
-                    System.out.println("✅ Practice questions generated");
-
-                    String quickRevision = consolidatorService.generateQuickRevision(masterNotes);
-                    consolidatorService.saveQuickRevision(quickRevision, outputDir + "/exam_materials/quick_revision.md");
-                    System.out.println("✅ Quick revision sheet generated");
-
-                    System.out.println("\n\n✨ PIPELINE COMPLETE!");
-                    System.out.println("═".repeat(60));
-                    System.out.println("📁 Output directory: " + outputDir + "/");
-                    System.out.println("📝 Master notes: " + outputDir + "/consolidated/master_notes.md");
-                    System.out.println("📚 Quick revision: " + outputDir + "/exam_materials/quick_revision.md");
-                    System.out.println("🎯 Practice questions: " + outputDir + "/exam_materials/practice_questions.md");
-                    System.out.println("🎓 Flashcards: " + outputDir + "/exam_materials/flashcards.csv");
-                } catch (Exception e) {
-                    System.out.println("❌ Error in consolidation: " + e.getMessage());
-                    logger.error("Consolidation error", e);
-                }
+            if (allChunks.isEmpty()) {
+                System.out.println("❌ No chunks created. Pipeline aborted.");
+                return;
             }
+
+            System.out.println("\n✅ Total chunks from all files: " + totalChunks);
+
+            // Step 2: Summarization
+            System.out.println("\n\n⏳ STEP 2: SUMMARIZING ALL CHUNKS");
+            System.out.println("═".repeat(60));
+
+            List<ChunkSummary> summaries = summarizerService.summarizeChunks(allChunks);
+            summarizerService.saveSummaries(summaries, outputDir + "/summaries");
+            System.out.println("✅ " + summarizerService.getSummaryStatistics(summaries));
+
+            // Step 3: Consolidation
+            System.out.println("\n\n⏳ STEP 3: CONSOLIDATING TO MASTER NOTES");
+            System.out.println("═".repeat(60));
+
+            String masterNotes = consolidatorService.consolidateToMasterNotes(summaries);
+            consolidatorService.saveMasterNotes(masterNotes, outputDir + "/consolidated/master_notes.md");
+            System.out.println("✅ Master notes created (combined from " + transcriptFiles.size() + " files)");
+
+            // Step 4: Generate exam materials
+            System.out.println("\n\n⏳ STEP 4: GENERATING EXAM MATERIALS");
+            System.out.println("═".repeat(60));
+
+            String flashcards = consolidatorService.generateFlashcards(masterNotes, summaries);
+            consolidatorService.saveFlashcards(flashcards, outputDir + "/exam_materials/flashcards.csv");
+            System.out.println("✅ Flashcards generated");
+
+            String practiceQuestions = consolidatorService.generatePracticeQuestions(masterNotes);
+            consolidatorService.savePracticeQuestions(practiceQuestions, outputDir + "/exam_materials/practice_questions.md");
+            System.out.println("✅ Practice questions generated");
+
+            String quickRevision = consolidatorService.generateQuickRevision(masterNotes);
+            consolidatorService.saveQuickRevision(quickRevision, outputDir + "/exam_materials/quick_revision.md");
+            System.out.println("✅ Quick revision sheet generated");
+
+            // Optional: Generate flows and diagrams
+            System.out.println("\n\n⏳ OPTIONAL: GENERATING FLOWS & DIAGRAMS");
+            System.out.println("═".repeat(60));
+            consolidatorService.generateAndSaveFlows(summaries, outputDir);
+            System.out.println("✅ Flows diagrams generated");
+
+            System.out.println("\n\n✨ PIPELINE COMPLETE!");
+            System.out.println("═".repeat(60));
+            System.out.println("📁 Output directory: " + outputDir + "/");
+            System.out.println("📝 Master notes: " + outputDir + "/consolidated/master_notes.md");
+            System.out.println("📚 Quick revision: " + outputDir + "/exam_materials/quick_revision.md");
+            System.out.println("🎯 Practice questions: " + outputDir + "/exam_materials/practice_questions.md");
+            System.out.println("🎓 Flashcards: " + outputDir + "/exam_materials/flashcards.csv");
+            System.out.println("📊 Flows diagrams: " + outputDir + "/flows/");
+
         } catch (Exception e) {
-            System.out.println("❌ Pipeline error: " + e.getMessage());
-            logger.error("Pipeline error", e);
+            System.out.println("❌ Error in combined pipeline: " + e.getMessage());
+            logger.error("Combined pipeline error", e);
         }
     }
 
@@ -387,6 +517,42 @@ public class App {
             System.out.println("🎓 Exam materials: " + examCount);
         } catch (Exception e) {
             System.out.println("❌ Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Generate flows and diagrams from existing summaries
+     */
+    private void generateFlows(Scanner scanner) {
+        try {
+            System.out.print("\n📁 Enter summaries directory: ");
+            String summariesDir = scanner.nextLine().trim();
+
+            System.out.println("\n⏳ Loading summaries...");
+            List<ChunkSummary> summaries = summarizerService.loadSummaries(summariesDir);
+            System.out.println("✅ Loaded " + summaries.size() + " summaries");
+
+            String outputDir = ConfigManager.get(ConfigManager.OUTPUT_DIR);
+            FileService.createDirectoryIfNotExists(outputDir + "/flows");
+
+            System.out.println("\n⏳ Generating flows and diagrams...");
+            System.out.println("📊 Creating workflow visualizations...");
+            System.out.println("📈 Generating flowcharts in Mermaid format...");
+            System.out.println("🎨 Creating ASCII diagrams...");
+
+            consolidatorService.generateAndSaveFlows(summaries, outputDir);
+
+            System.out.println("\n✨ FLOWS GENERATION COMPLETE!");
+            System.out.println("═".repeat(60));
+            System.out.println("📊 Flows directory: " + outputDir + "/flows/");
+            System.out.println("📄 Main report: " + outputDir + "/flows/flows_report.md");
+            System.out.println("📋 Pipeline diagram: " + outputDir + "/flows/pipeline_diagram.md");
+            System.out.println("🔍 Individual workflows: " + outputDir + "/flows/workflow_*.md");
+            System.out.println("\nTip: Open the flows_report.md file to view all diagrams!");
+
+        } catch (Exception e) {
+            System.out.println("❌ Error: " + e.getMessage());
+            logger.error("Flows generation error", e);
         }
     }
 

@@ -211,7 +211,7 @@ public class ApiClient {
                 .post(body);
 
         if (type == ModelType.CLAUDE) {
-            requestBuilder.addHeader("Authorization", "Bearer " + apiKey)
+            requestBuilder.addHeader("x-api-key", apiKey)
                     .addHeader("anthropic-version", "2023-06-01")
                     .addHeader("content-type", "application/json");
         } else if (type == ModelType.OPENAI) {

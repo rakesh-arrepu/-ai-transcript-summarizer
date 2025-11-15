@@ -392,25 +392,145 @@ Each summary is saved as `output/summaries/chunk_1.json`:
 
 ## Advanced Workflows
 
-### Workflow 1: Multi-Lecture Course
+### Workflow 1: Processing Multiple Transcripts
 
-Processing multiple lectures into a consolidated master guide:
+The pipeline supports two modes for processing multiple transcript files:
 
+#### Mode A: Separate Outputs (Default - MULTI_FILE_MODE=separate)
+
+Each transcript gets its own study materials. Best for unrelated topics.
+
+**Setup:**
 ```bash
-# 1. Place all transcripts
+# 1. Ensure .env has:
+MULTI_FILE_MODE=separate
+
+# 2. Place transcripts in directory
 transcripts/
-├── week1_lecture1.txt
-├── week1_lecture2.txt
-├── week2_lecture1.txt
-└── week2_lecture2.txt
+├── Section-Fundamentals.txt
+├── Section-RAG.txt
+└── Section-Chatbot.txt
 
-# 2. Run complete pipeline (processes all files)
-# Menu option 1
-
-# 3. All outputs consolidated:
-output/consolidated/master_notes.md  # Complete course guide
-output/exam_materials/flashcards.csv  # All flashcards combined
+# 3. Run complete pipeline
+java -jar target/transcript-pipeline.jar
+# Choose option 1: Run complete pipeline
+# Enter directory: transcripts
 ```
+
+**Output:**
+```text
+output/
+├── consolidated/
+│   ├── Section-Fundamentals_master_notes.md
+│   ├── Section-RAG_master_notes.md
+│   └── Section-Chatbot_master_notes.md
+└── exam_materials/
+    ├── Section-Fundamentals/
+    │   ├── flashcards.csv
+    │   ├── practice_questions.md
+    │   └── quick_revision.md
+    ├── Section-RAG/
+    └── Section-Chatbot/
+```
+
+**What you'll see:**
+```text
+⚙️  Multi-File Mode: SEPARATE
+
+======================================================================
+📄 FILE 1/3: Section-Fundamentals.txt
+======================================================================
+
+⏳ STEP 1: CHUNKING
+✅ Created 8 chunks
+
+⏳ STEP 2: SUMMARIZING
+✅ Summary Statistics: Total=8, High Confidence=7, Medium=1, Low=0
+
+⏳ STEP 3: CONSOLIDATING
+✅ Master notes created
+
+⏳ STEP 4: GENERATING EXAM MATERIALS
+✅ Flashcards generated
+✅ Practice questions generated
+✅ Quick revision sheet generated
+
+✨ FILE COMPLETE: Section-Fundamentals.txt
+📁 Master notes: output/consolidated/Section-Fundamentals_master_notes.md
+📁 Exam materials: output/exam_materials/Section-Fundamentals/
+
+[Repeats for files 2 and 3...]
+```
+
+#### Mode B: Combined Output (MULTI_FILE_MODE=combined)
+
+All transcripts merged into one comprehensive output. Best for related topics.
+
+**Setup:**
+```bash
+# 1. Update .env:
+MULTI_FILE_MODE=combined
+
+# 2. Place transcripts (same as above)
+transcripts/
+├── Section-Fundamentals.txt
+├── Section-RAG.txt
+└── Section-Chatbot.txt
+
+# 3. Run complete pipeline
+java -jar target/transcript-pipeline.jar
+```
+
+**Output:**
+```text
+output/
+├── consolidated/
+│   └── master_notes.md              # Combined from all 3 files
+└── exam_materials/
+    ├── flashcards.csv               # Combined from all 3 files
+    ├── practice_questions.md        # Combined from all 3 files
+    └── quick_revision.md            # Combined from all 3 files
+```
+
+**What you'll see:**
+```text
+⚙️  Multi-File Mode: COMBINED
+
+⏳ STEP 1: CHUNKING ALL TRANSCRIPTS
+
+📄 Processing: Section-Fundamentals.txt
+✅ Created 8 chunks
+
+📄 Processing: Section-RAG.txt
+✅ Created 6 chunks
+
+📄 Processing: Section-Chatbot.txt
+✅ Created 5 chunks
+
+✅ Total chunks from all files: 19
+
+⏳ STEP 2: SUMMARIZING ALL CHUNKS
+✅ Summary Statistics: Total=19, High Confidence=17, Medium=2, Low=0
+
+⏳ STEP 3: CONSOLIDATING TO MASTER NOTES
+✅ Master notes created (combined from 3 files)
+
+⏳ STEP 4: GENERATING EXAM MATERIALS
+✅ Flashcards generated
+✅ Practice questions generated
+✅ Quick revision sheet generated
+```
+
+**Choosing Between Modes:**
+
+| Criteria | Separate Mode | Combined Mode |
+|----------|---------------|---------------|
+| **Unrelated topics** | ✅ Best choice | ❌ Not ideal |
+| **Related topics** | ⚠️ Works, but fragmented | ✅ Best choice |
+| **Study individually** | ✅ Easier | ❌ Must split manually |
+| **One comprehensive guide** | ❌ Multiple files | ✅ Single file |
+| **API Cost** | 💰💰 Higher (N×cost) | 💰 Lower (1×cost) |
+| **Processing Time** | ⏱️⏱️ Longer | ⏱️ Faster |
 
 ### Workflow 2: Quality Review with Low-Confidence Items
 

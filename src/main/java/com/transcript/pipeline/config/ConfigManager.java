@@ -37,6 +37,7 @@ public class ConfigManager {
     public static final String TRANSCRIPT_DIR = "TRANSCRIPT_DIR";
     public static final String OUTPUT_DIR = "OUTPUT_DIR";
     public static final String LOGS_DIR = "LOGS_DIR";
+    public static final String MULTI_FILE_MODE = "MULTI_FILE_MODE";  // separate|combined
     public static final String CHUNK_SIZE = "CHUNK_SIZE";
     public static final String CHUNK_OVERLAP = "CHUNK_OVERLAP";
 
@@ -113,6 +114,7 @@ public class ConfigManager {
         config.putIfAbsent(TRANSCRIPT_DIR, System.getenv(TRANSCRIPT_DIR) != null ? System.getenv(TRANSCRIPT_DIR) : "");
         config.putIfAbsent(OUTPUT_DIR, System.getenv(OUTPUT_DIR) != null ? System.getenv(OUTPUT_DIR) : "");
         config.putIfAbsent(LOGS_DIR, System.getenv(LOGS_DIR) != null ? System.getenv(LOGS_DIR) : "");
+        config.putIfAbsent(MULTI_FILE_MODE, System.getenv(MULTI_FILE_MODE) != null ? System.getenv(MULTI_FILE_MODE) : "");
     }
 
     /**
@@ -130,6 +132,7 @@ public class ConfigManager {
         config.putIfAbsent(TRANSCRIPT_DIR, "transcripts");
         config.putIfAbsent(OUTPUT_DIR, "output");
         config.putIfAbsent(LOGS_DIR, "logs");
+        config.putIfAbsent(MULTI_FILE_MODE, "separate");  // separate or combined
         config.putIfAbsent(CHUNK_SIZE, "1500");
         config.putIfAbsent(CHUNK_OVERLAP, "200");
         config.putIfAbsent(API_TIMEOUT, "60000"); // 60 seconds in milliseconds
@@ -237,6 +240,7 @@ public class ConfigManager {
         logger.info("  Logs Directory: {}", get(LOGS_DIR));
         logger.info("");
         logger.info("Processing Parameters:");
+        logger.info("  Multi-File Mode: {}", get(MULTI_FILE_MODE, "separate"));
         logger.info("  Chunk Size (tokens): {}", get(CHUNK_SIZE));
         logger.info("  Chunk Overlap (tokens): {}", get(CHUNK_OVERLAP));
         logger.info("  API Timeout (ms): {}", get(API_TIMEOUT));
