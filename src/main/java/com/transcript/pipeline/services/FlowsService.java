@@ -77,8 +77,9 @@ public class FlowsService {
      *
      * @param flowsDir Directory to save the diagram
      * @return Path to generated diagram
+     * @throws Exception if file writing fails
      */
-    private static String generatePipelineDiagramFile(String flowsDir) {
+    private static String generatePipelineDiagramFile(String flowsDir) throws Exception {
         String pipelineContent = "# Pipeline Execution Flow\n\n";
         pipelineContent += FlowsGenerator.generatePipelineFlowDiagram();
         pipelineContent += "\n## ASCII Diagram\n\n";
@@ -99,8 +100,9 @@ public class FlowsService {
      *
      * @param summaries List of chunk summaries
      * @param flowsDir Directory to save workflow files
+     * @throws Exception if file writing fails
      */
-    private static void generateWorkflowSummaries(List<ChunkSummary> summaries, String flowsDir) {
+    private static void generateWorkflowSummaries(List<ChunkSummary> summaries, String flowsDir) throws Exception {
         if (summaries == null) {
             return;
         }
