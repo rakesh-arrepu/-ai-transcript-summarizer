@@ -1,15 +1,19 @@
 package com.transcript.pipeline;
 
 import com.transcript.pipeline.config.ConfigManager;
+import com.transcript.pipeline.models.BatchResult;
 import com.transcript.pipeline.models.ChunkSummary;
+import com.transcript.pipeline.models.PipelineState;
 import com.transcript.pipeline.models.TextChunk;
 import com.transcript.pipeline.services.ChunkerService;
 import com.transcript.pipeline.services.ConsolidatorService;
 import com.transcript.pipeline.services.FlowsService;
 import com.transcript.pipeline.services.SummarizerService;
+import com.transcript.pipeline.util.BatchProcessor;
 import com.transcript.pipeline.util.ConsoleColors;
 import com.transcript.pipeline.util.CostTracker;
 import com.transcript.pipeline.util.FileService;
+import com.transcript.pipeline.util.StateManager;
 import com.transcript.pipeline.util.TextProcessingUtil;
 import com.transcript.pipeline.util.ValidationResult;
 import com.transcript.pipeline.util.ValidationService;
@@ -77,6 +81,26 @@ public class App {
 
             App app = new App();
 
+            // Check for existing pipeline state (Phase 1.3 - Resume Capability)
+            if (StateManager.stateFileExists() && args.length == 0) {
+                PipelineState savedState = StateManager.loadState();
+                StateManager.ResumeChoice choice = StateManager.promptResumeChoice(savedState);
+
+                switch (choice) {
+                    case RESUME:
+                        ConsoleColors.printSuccess("Resuming from saved state...");
+                        app.resumePipeline(savedState);
+                        return;
+                    case START_NEW:
+                        ConsoleColors.printWarning("Starting new pipeline (saved state will be discarded)");
+                        StateManager.deleteState();
+                        break;
+                    case CANCEL:
+                        ConsoleColors.printInfo("Pipeline cancelled");
+                        return;
+                }
+            }
+
             if (args.length == 0) {
                 app.runInteractive();
             } else {
@@ -111,9 +135,9 @@ public class App {
             System.out.println("4. Consolidate to master notes");
             System.out.println("5. Generate exam materials (flashcards, practice questions)");
             System.out.println("6. Generate flows and diagrams (optional visualization)");
-            System.out.println("7. View pipeline status");
-            System.out.println("8. Settings");
-            System.out.println("9. Help");
+            System.out.println("7. Process all transcripts (batch mode)");
+            System.out.println("8. View pipeline status");
+            System.out.println("9. Settings");
             System.out.println("0. Exit");
             System.out.print("\n👉 Choose an option (0-9): ");
 
@@ -139,13 +163,13 @@ public class App {
                     generateFlows(scanner);
                     break;
                 case "7":
-                    viewPipelineStatus();
+                    runBatchProcessing(scanner);
                     break;
                 case "8":
-                    displaySettings();
+                    viewPipelineStatus();
                     break;
                 case "9":
-                    displayHelp();
+                    displaySettings();
                     break;
                 case "0":
                     running = false;
@@ -267,37 +291,69 @@ public class App {
     private void runPipelineInSeparateMode(List<File> transcriptFiles, String outputDir) {
         System.out.println("\n📋 Processing each file separately with individual outputs\n");
 
+        // Initialize pipeline state for resume capability
+        PipelineState pipelineState = new PipelineState();
+        pipelineState.setOverallStatus("in_progress");
+
         for (int i = 0; i < transcriptFiles.size(); i++) {
             File file = transcriptFiles.get(i);
             System.out.println("\n" + "=".repeat(70));
             System.out.println("📄 FILE " + (i + 1) + "/" + transcriptFiles.size() + ": " + file.getName());
             System.out.println("=".repeat(70));
 
+            // Create lesson state
+            PipelineState.LessonState lessonState = new PipelineState.LessonState(file.getName());
+            pipelineState.addLesson(file.getName(), lessonState);
+
             try {
                 // Step 1: Chunking
                 System.out.println("\n⏳ STEP 1: CHUNKING");
+                lessonState.setChunkingStatus(PipelineState.StageStatus.IN_PROGRESS);
+                StateManager.saveState(pipelineState);
+
                 List<TextChunk> chunks = chunkerService.chunkTranscript(file.getAbsolutePath());
                 String chunkOutputPath = FileService.generateChunkOutputPath(outputDir, file.getName());
                 chunkerService.saveChunks(chunks, chunkOutputPath);
                 System.out.println("✅ Created " + chunks.size() + " chunks");
 
+                lessonState.setChunksPath(chunkOutputPath);
+                lessonState.setChunkingStatus(PipelineState.StageStatus.COMPLETED);
+                StateManager.saveState(pipelineState);
+
                 // Step 2: Summarization
                 System.out.println("\n⏳ STEP 2: SUMMARIZING");
+                lessonState.setSummarizationStatus(PipelineState.StageStatus.IN_PROGRESS);
+                StateManager.saveState(pipelineState);
+
                 List<ChunkSummary> summaries = summarizerService.summarizeChunks(chunks);
                 String summaryDir = FileService.generateSummaryOutputDir(outputDir, file.getName());
                 FileService.createDirectoryIfNotExists(summaryDir);
                 summarizerService.saveSummaries(summaries, summaryDir);
                 System.out.println("✅ " + summarizerService.getSummaryStatistics(summaries));
 
+                lessonState.setSummariesPath(summaryDir);
+                lessonState.setSummarizationStatus(PipelineState.StageStatus.COMPLETED);
+                StateManager.saveState(pipelineState);
+
                 // Step 3: Consolidation
                 System.out.println("\n⏳ STEP 3: CONSOLIDATING");
+                lessonState.setConsolidationStatus(PipelineState.StageStatus.IN_PROGRESS);
+                StateManager.saveState(pipelineState);
+
                 String masterNotes = consolidatorService.consolidateToMasterNotes(summaries);
                 String consolidatedPath = FileService.generateConsolidatedPath(outputDir, file.getName());
                 consolidatorService.saveMasterNotes(masterNotes, consolidatedPath);
                 System.out.println("✅ Master notes created");
 
+                lessonState.setMasterNotesPath(consolidatedPath);
+                lessonState.setConsolidationStatus(PipelineState.StageStatus.COMPLETED);
+                StateManager.saveState(pipelineState);
+
                 // Step 4: Exam Materials
                 System.out.println("\n⏳ STEP 4: GENERATING EXAM MATERIALS");
+                lessonState.setExamMaterialsStatus(PipelineState.StageStatus.IN_PROGRESS);
+                StateManager.saveState(pipelineState);
+
                 String examDir = FileService.generateExamMaterialsDir(outputDir, file.getName());
                 FileService.createDirectoryIfNotExists(examDir);
 
@@ -313,6 +369,10 @@ public class App {
                 consolidatorService.saveQuickRevision(quickRevision, examDir + "/quick_revision.md");
                 System.out.println("✅ Quick revision sheet generated");
 
+                lessonState.setExamMaterialsPath(examDir);
+                lessonState.setExamMaterialsStatus(PipelineState.StageStatus.COMPLETED);
+                StateManager.saveState(pipelineState);
+
                 // Optional: Generate flows and diagrams
                 System.out.println("\n⏳ OPTIONAL: GENERATING FLOWS & DIAGRAMS");
                 consolidatorService.generateAndSaveFlows(summaries, outputDir);
@@ -326,8 +386,26 @@ public class App {
             } catch (Exception e) {
                 System.out.println("❌ Error processing " + file.getName() + ": " + e.getMessage());
                 logger.error("Error processing file: " + file.getName(), e);
+
+                // Mark stage as failed
+                if (lessonState.getChunkingStatus() == PipelineState.StageStatus.IN_PROGRESS) {
+                    lessonState.setChunkingStatus(PipelineState.StageStatus.FAILED);
+                } else if (lessonState.getSummarizationStatus() == PipelineState.StageStatus.IN_PROGRESS) {
+                    lessonState.setSummarizationStatus(PipelineState.StageStatus.FAILED);
+                } else if (lessonState.getConsolidationStatus() == PipelineState.StageStatus.IN_PROGRESS) {
+                    lessonState.setConsolidationStatus(PipelineState.StageStatus.FAILED);
+                } else if (lessonState.getExamMaterialsStatus() == PipelineState.StageStatus.IN_PROGRESS) {
+                    lessonState.setExamMaterialsStatus(PipelineState.StageStatus.FAILED);
+                }
+                lessonState.setErrorMessage(e.getMessage());
+                StateManager.saveState(pipelineState);
             }
         }
+
+        // All files processed - delete state
+        pipelineState.setOverallStatus("completed");
+        StateManager.deleteState();
+        logger.info("Pipeline state cleared after successful completion");
 
         System.out.println("\n\n" + "=".repeat(70));
         System.out.println("✨ ALL FILES PROCESSED!");
@@ -679,6 +757,204 @@ public class App {
     }
 
     /**
+     * Resume pipeline from saved state (Phase 1.3)
+     */
+    private void resumePipeline(PipelineState state) {
+        try {
+            System.out.println();
+            ConsoleColors.printHeader("RESUMING PIPELINE");
+            System.out.println();
+
+            String outputDir = ConfigManager.get(ConfigManager.OUTPUT_DIR);
+
+            // Resume each lesson that can be resumed
+            for (PipelineState.LessonState lessonState : state.getLessons().values()) {
+                if (!lessonState.canResume()) {
+                    if (lessonState.allStagesCompleted()) {
+                        ConsoleColors.printSuccess("Skipping completed file: " + lessonState.getFilename());
+                    }
+                    continue;
+                }
+
+                System.out.println();
+                ConsoleColors.printSection("Resuming: " + lessonState.getFilename());
+                System.out.println("Next stage: " + lessonState.getNextStage());
+                System.out.println();
+
+                // Load file
+                File transcriptFile = new File("transcripts/" + lessonState.getFilename());
+                if (!transcriptFile.exists()) {
+                    ConsoleColors.printError("Transcript file not found: " + transcriptFile.getAbsolutePath());
+                    continue;
+                }
+
+                // Resume from next stage
+                resumeLessonFromStage(lessonState, transcriptFile, outputDir);
+
+                // Save state after each file
+                StateManager.saveState(state);
+            }
+
+            // Delete state when all complete
+            if (state.getLessons().values().stream().allMatch(PipelineState.LessonState::allStagesCompleted)) {
+                StateManager.deleteState();
+                ConsoleColors.printSuccess("All files completed! State cleared.");
+            }
+
+        } catch (Exception e) {
+            logger.error("Resume pipeline error", e);
+            ConsoleColors.printError("Resume error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Resume a single lesson from a specific stage
+     */
+    private void resumeLessonFromStage(PipelineState.LessonState lessonState, File transcriptFile, String outputDir) {
+        try {
+            List<TextChunk> chunks = null;
+            List<ChunkSummary> summaries = null;
+            String masterNotes = null;
+
+            String nextStage = lessonState.getNextStage();
+
+            // Stage 1: Chunking (if needed)
+            if ("chunking".equals(nextStage)) {
+                System.out.println("\n⏳ STEP 1: CHUNKING");
+                lessonState.setChunkingStatus(PipelineState.StageStatus.IN_PROGRESS);
+                chunks = chunkerService.chunkTranscript(transcriptFile.getAbsolutePath());
+                String chunkOutputPath = FileService.generateChunkOutputPath(outputDir, transcriptFile.getName());
+                chunkerService.saveChunks(chunks, chunkOutputPath);
+                lessonState.setChunksPath(chunkOutputPath);
+                lessonState.setChunkingStatus(PipelineState.StageStatus.COMPLETED);
+                System.out.println("✅ Created " + chunks.size() + " chunks");
+                nextStage = "summarization";
+            } else if (lessonState.getChunksPath() != null) {
+                chunks = chunkerService.loadChunks(lessonState.getChunksPath());
+            }
+
+            // Stage 2: Summarization (if needed)
+            if ("summarization".equals(nextStage)) {
+                System.out.println("\n⏳ STEP 2: SUMMARIZING");
+                lessonState.setSummarizationStatus(PipelineState.StageStatus.IN_PROGRESS);
+                summaries = summarizerService.summarizeChunks(chunks);
+                String summaryDir = FileService.generateSummaryOutputDir(outputDir, transcriptFile.getName());
+                FileService.createDirectoryIfNotExists(summaryDir);
+                summarizerService.saveSummaries(summaries, summaryDir);
+                lessonState.setSummariesPath(summaryDir);
+                lessonState.setSummarizationStatus(PipelineState.StageStatus.COMPLETED);
+                System.out.println("✅ " + summarizerService.getSummaryStatistics(summaries));
+                nextStage = "consolidation";
+            } else if (lessonState.getSummariesPath() != null) {
+                summaries = summarizerService.loadSummaries(lessonState.getSummariesPath());
+            }
+
+            // Stage 3: Consolidation (if needed)
+            if ("consolidation".equals(nextStage)) {
+                System.out.println("\n⏳ STEP 3: CONSOLIDATING");
+                lessonState.setConsolidationStatus(PipelineState.StageStatus.IN_PROGRESS);
+                masterNotes = consolidatorService.consolidateToMasterNotes(summaries);
+                String consolidatedPath = FileService.generateConsolidatedPath(outputDir, transcriptFile.getName());
+                consolidatorService.saveMasterNotes(masterNotes, consolidatedPath);
+                lessonState.setMasterNotesPath(consolidatedPath);
+                lessonState.setConsolidationStatus(PipelineState.StageStatus.COMPLETED);
+                System.out.println("✅ Master notes created");
+                nextStage = "exam_materials";
+            } else if (lessonState.getMasterNotesPath() != null) {
+                masterNotes = FileService.readTextFile(lessonState.getMasterNotesPath());
+            }
+
+            // Stage 4: Exam Materials (if needed)
+            if ("exam_materials".equals(nextStage)) {
+                System.out.println("\n⏳ STEP 4: GENERATING EXAM MATERIALS");
+                lessonState.setExamMaterialsStatus(PipelineState.StageStatus.IN_PROGRESS);
+                String examDir = FileService.generateExamMaterialsDir(outputDir, transcriptFile.getName());
+                FileService.createDirectoryIfNotExists(examDir);
+
+                String flashcards = consolidatorService.generateFlashcards(masterNotes, summaries);
+                consolidatorService.saveFlashcards(flashcards, examDir + "/flashcards.csv");
+
+                String practiceQuestions = consolidatorService.generatePracticeQuestions(masterNotes);
+                consolidatorService.savePracticeQuestions(practiceQuestions, examDir + "/practice_questions.md");
+
+                String quickRevision = consolidatorService.generateQuickRevision(masterNotes);
+                consolidatorService.saveQuickRevision(quickRevision, examDir + "/quick_revision.md");
+
+                lessonState.setExamMaterialsPath(examDir);
+                lessonState.setExamMaterialsStatus(PipelineState.StageStatus.COMPLETED);
+                System.out.println("✅ Exam materials generated");
+            }
+
+            ConsoleColors.printSuccess("File completed: " + transcriptFile.getName());
+
+        } catch (Exception e) {
+            logger.error("Error resuming lesson: " + lessonState.getFilename(), e);
+            lessonState.setErrorMessage(e.getMessage());
+            ConsoleColors.printError("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Run batch processing mode (Phase 1.4)
+     */
+    private void runBatchProcessing(Scanner scanner) {
+        try {
+            System.out.print("\n📁 Enter transcript directory (default: 'transcripts'): ");
+            String transcriptDir = scanner.nextLine().trim();
+            if (transcriptDir.isEmpty()) {
+                transcriptDir = "transcripts";
+            }
+
+            // Validate directory
+            File dir = new File(transcriptDir);
+            if (!dir.exists() || !dir.isDirectory()) {
+                ConsoleColors.printError("Directory not found: " + transcriptDir);
+                return;
+            }
+
+            List<File> transcriptFiles = FileService.listFilesInDirectory(transcriptDir, ".txt");
+            if (transcriptFiles.isEmpty()) {
+                ConsoleColors.printError("No transcript files found in " + transcriptDir);
+                ConsoleColors.printInfo("Place .txt files in the " + transcriptDir + "/ directory");
+                return;
+            }
+
+            // Show summary and confirm
+            System.out.println();
+            ConsoleColors.printInfo("Found " + transcriptFiles.size() + " transcript files");
+            System.out.println();
+
+            System.out.print("Continue with batch processing? (y/n): ");
+            String confirm = scanner.nextLine().trim().toLowerCase();
+            if (!confirm.equals("y") && !confirm.equals("yes")) {
+                ConsoleColors.printWarning("Batch processing cancelled");
+                return;
+            }
+
+            // Run batch processing
+            BatchProcessor batchProcessor = new BatchProcessor();
+            BatchResult result = batchProcessor.processAllTranscripts(transcriptDir);
+
+            // Display results
+            System.out.println();
+            ConsoleColors.printHeader("BATCH PROCESSING COMPLETE");
+            System.out.println();
+            System.out.println("Total files: " + (result.getSuccessfulFiles().size() + result.getFailedFiles().size()));
+            System.out.println("Successful: " + ConsoleColors.colorize(String.valueOf(result.getSuccessfulFiles().size()), ConsoleColors.GREEN));
+            System.out.println("Failed: " + ConsoleColors.colorize(String.valueOf(result.getFailedFiles().size()), ConsoleColors.RED));
+            System.out.println("Success rate: " + ConsoleColors.formatPercentage(result.getSuccessRate()));
+            System.out.println("Total cost: " + ConsoleColors.formatCost(result.getTotalCost()));
+            System.out.println("Total time: " + ConsoleColors.formatTime(result.getTotalDurationMs()));
+            System.out.println();
+            ConsoleColors.printInfo("Reports saved to output directory");
+
+        } catch (Exception e) {
+            logger.error("Batch processing error", e);
+            ConsoleColors.printError("Batch processing error: " + e.getMessage());
+        }
+    }
+
+    /**
      * Run command-line mode
      */
     private void runCommand(String[] args) throws ParseException {
@@ -688,6 +964,7 @@ public class App {
         options.addOption("s", "step", true, "Pipeline step to run");
         options.addOption("i", "input", true, "Input file path");
         options.addOption("o", "output", true, "Output file path");
+        options.addOption("b", "batch", true, "Batch process all files in directory");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
@@ -700,6 +977,18 @@ public class App {
 
         if (cmd.hasOption("v")) {
             System.out.println("Transcript to Exam Notes Pipeline v" + VERSION);
+            return;
+        }
+
+        if (cmd.hasOption("b")) {
+            // Batch processing mode
+            String transcriptDir = cmd.getOptionValue("b");
+            BatchProcessor batchProcessor = new BatchProcessor();
+            BatchResult result = batchProcessor.processAllTranscripts(transcriptDir);
+
+            System.out.println();
+            System.out.println("Batch processing complete!");
+            System.out.println("Success rate: " + ConsoleColors.formatPercentage(result.getSuccessRate()));
             return;
         }
 

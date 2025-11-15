@@ -29,15 +29,37 @@ public class PipelineState implements Serializable {
         this.timestamp = LocalDateTime.now();
     }
 
+    /**
+     * Stage completion status
+     */
+    public enum StageStatus {
+        NOT_STARTED,
+        IN_PROGRESS,
+        COMPLETED,
+        FAILED
+    }
+
     public static class LessonState implements Serializable {
         @JsonProperty("filename")
         private String filename;
 
+        @JsonProperty("chunking_status")
+        private StageStatus chunkingStatus;
+
+        @JsonProperty("summarization_status")
+        private StageStatus summarizationStatus;
+
+        @JsonProperty("consolidation_status")
+        private StageStatus consolidationStatus;
+
+        @JsonProperty("exam_materials_status")
+        private StageStatus examMaterialsStatus;
+
         @JsonProperty("chunks")
-        private String chunksStatus; // "pending", "done"
+        private String chunksStatus; // "pending", "done" - for backward compatibility
 
         @JsonProperty("summaries")
-        private String summariesStatus; // "pending", "in_progress", "done"
+        private String summariesStatus; // "pending", "in_progress", "done" - for backward compatibility
 
         @JsonProperty("confidence_issues")
         private List<String> confidenceIssues; // list of low-confidence chunk IDs
@@ -45,16 +67,75 @@ public class PipelineState implements Serializable {
         @JsonProperty("summary_count")
         private Integer summaryCount;
 
+        @JsonProperty("chunks_path")
+        private String chunksPath;
+
+        @JsonProperty("summaries_path")
+        private String summariesPath;
+
+        @JsonProperty("master_notes_path")
+        private String masterNotesPath;
+
+        @JsonProperty("exam_materials_path")
+        private String examMaterialsPath;
+
         @JsonProperty("last_updated")
         private LocalDateTime lastUpdated;
 
-        public LessonState() {}
+        @JsonProperty("error_message")
+        private String errorMessage;
+
+        public LessonState() {
+            this.chunkingStatus = StageStatus.NOT_STARTED;
+            this.summarizationStatus = StageStatus.NOT_STARTED;
+            this.consolidationStatus = StageStatus.NOT_STARTED;
+            this.examMaterialsStatus = StageStatus.NOT_STARTED;
+        }
 
         public LessonState(String filename) {
+            this();
             this.filename = filename;
             this.chunksStatus = "pending";
             this.summariesStatus = "pending";
             this.lastUpdated = LocalDateTime.now();
+        }
+
+        /**
+         * Check if pipeline can be resumed
+         */
+        public boolean canResume() {
+            return hasCompletedStages() && !allStagesCompleted();
+        }
+
+        /**
+         * Check if any stages are completed
+         */
+        public boolean hasCompletedStages() {
+            return chunkingStatus == StageStatus.COMPLETED ||
+                   summarizationStatus == StageStatus.COMPLETED ||
+                   consolidationStatus == StageStatus.COMPLETED ||
+                   examMaterialsStatus == StageStatus.COMPLETED;
+        }
+
+        /**
+         * Check if all stages are completed
+         */
+        public boolean allStagesCompleted() {
+            return chunkingStatus == StageStatus.COMPLETED &&
+                   summarizationStatus == StageStatus.COMPLETED &&
+                   consolidationStatus == StageStatus.COMPLETED &&
+                   examMaterialsStatus == StageStatus.COMPLETED;
+        }
+
+        /**
+         * Get next stage to execute
+         */
+        public String getNextStage() {
+            if (chunkingStatus != StageStatus.COMPLETED) return "chunking";
+            if (summarizationStatus != StageStatus.COMPLETED) return "summarization";
+            if (consolidationStatus != StageStatus.COMPLETED) return "consolidation";
+            if (examMaterialsStatus != StageStatus.COMPLETED) return "exam_materials";
+            return "none";
         }
 
         // Getters and Setters
@@ -64,6 +145,42 @@ public class PipelineState implements Serializable {
 
         public void setFilename(String filename) {
             this.filename = filename;
+        }
+
+        public StageStatus getChunkingStatus() {
+            return chunkingStatus;
+        }
+
+        public void setChunkingStatus(StageStatus chunkingStatus) {
+            this.chunkingStatus = chunkingStatus;
+            this.lastUpdated = LocalDateTime.now();
+        }
+
+        public StageStatus getSummarizationStatus() {
+            return summarizationStatus;
+        }
+
+        public void setSummarizationStatus(StageStatus summarizationStatus) {
+            this.summarizationStatus = summarizationStatus;
+            this.lastUpdated = LocalDateTime.now();
+        }
+
+        public StageStatus getConsolidationStatus() {
+            return consolidationStatus;
+        }
+
+        public void setConsolidationStatus(StageStatus consolidationStatus) {
+            this.consolidationStatus = consolidationStatus;
+            this.lastUpdated = LocalDateTime.now();
+        }
+
+        public StageStatus getExamMaterialsStatus() {
+            return examMaterialsStatus;
+        }
+
+        public void setExamMaterialsStatus(StageStatus examMaterialsStatus) {
+            this.examMaterialsStatus = examMaterialsStatus;
+            this.lastUpdated = LocalDateTime.now();
         }
 
         public String getChunksStatus() {
@@ -100,12 +217,52 @@ public class PipelineState implements Serializable {
             this.summaryCount = summaryCount;
         }
 
+        public String getChunksPath() {
+            return chunksPath;
+        }
+
+        public void setChunksPath(String chunksPath) {
+            this.chunksPath = chunksPath;
+        }
+
+        public String getSummariesPath() {
+            return summariesPath;
+        }
+
+        public void setSummariesPath(String summariesPath) {
+            this.summariesPath = summariesPath;
+        }
+
+        public String getMasterNotesPath() {
+            return masterNotesPath;
+        }
+
+        public void setMasterNotesPath(String masterNotesPath) {
+            this.masterNotesPath = masterNotesPath;
+        }
+
+        public String getExamMaterialsPath() {
+            return examMaterialsPath;
+        }
+
+        public void setExamMaterialsPath(String examMaterialsPath) {
+            this.examMaterialsPath = examMaterialsPath;
+        }
+
         public LocalDateTime getLastUpdated() {
             return lastUpdated;
         }
 
         public void setLastUpdated(LocalDateTime lastUpdated) {
             this.lastUpdated = lastUpdated;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        public void setErrorMessage(String errorMessage) {
+            this.errorMessage = errorMessage;
         }
     }
 
