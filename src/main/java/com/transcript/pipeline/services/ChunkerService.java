@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.transcript.pipeline.config.ConfigManager;
 import com.transcript.pipeline.models.TextChunk;
 import com.transcript.pipeline.util.ApiClient;
+import com.transcript.pipeline.util.ConsoleColors;
 import com.transcript.pipeline.util.FileService;
 import com.transcript.pipeline.util.TextProcessingUtil;
 import java.io.IOException;
@@ -35,16 +36,38 @@ public class ChunkerService {
      * Chunk a transcript file using semantic chunking strategy
      */
     public List<TextChunk> chunkTranscript(String filePath) throws IOException, InterruptedException {
+        ConsoleColors.printSection("Chunking Stage");
+        System.out.println(String.format("File: %s",
+            ConsoleColors.colorize(new java.io.File(filePath).getName(), ConsoleColors.BOLD_CYAN)));
+        System.out.println(String.format("Target chunk size: %s tokens | Overlap: %s tokens",
+            ConsoleColors.colorize(String.valueOf(chunkSize), ConsoleColors.GREEN),
+            ConsoleColors.colorize(String.valueOf(chunkOverlap), ConsoleColors.CYAN)));
+        System.out.println();
+
         logger.info("Chunking transcript: {}", filePath);
+
+        long startTime = System.currentTimeMillis();
 
         String fileContent = FileService.readTextFile(filePath);
         String fileName = new java.io.File(filePath).getName();
 
         // Clean text first
+        System.out.print("Cleaning text... ");
         fileContent = TextProcessingUtil.cleanText(fileContent);
+        ConsoleColors.printSuccess("Done");
 
         // Use local semantic chunking (preferred, no API call needed)
-        return performLocalChunking(fileContent, fileName);
+        System.out.print("Performing semantic chunking... ");
+        List<TextChunk> chunks = performLocalChunking(fileContent, fileName);
+
+        long totalTime = System.currentTimeMillis() - startTime;
+        System.out.println();
+        ConsoleColors.printSuccess(String.format(
+            "Created %d chunks in %s (local processing, no API cost)",
+            chunks.size(),
+            ConsoleColors.formatTime(totalTime)));
+
+        return chunks;
     }
 
     /**

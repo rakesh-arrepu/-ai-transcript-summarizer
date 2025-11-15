@@ -6,11 +6,15 @@ import com.transcript.pipeline.config.ConfigManager;
 import com.transcript.pipeline.models.ChunkSummary;
 import com.transcript.pipeline.models.TextChunk;
 import com.transcript.pipeline.util.ApiClient;
+import com.transcript.pipeline.util.ConsoleColors;
 import com.transcript.pipeline.util.FileService;
 import com.transcript.pipeline.util.TextProcessingUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,22 +82,66 @@ public class SummarizerService {
     public List<ChunkSummary> summarizeChunks(List<TextChunk> chunks) throws IOException, InterruptedException {
         List<ChunkSummary> summaries = new ArrayList<>();
 
-        for (int i = 0; i < chunks.size(); i++) {
-            TextChunk chunk = chunks.get(i);
-            logger.info("Summarizing chunk {}/{}", i + 1, chunks.size());
+        ConsoleColors.printSection("Summarization Stage");
+        System.out.println(String.format("Model: %s | Total chunks: %d",
+            ConsoleColors.colorize(modelType.toUpperCase(), ConsoleColors.BOLD_CYAN),
+            chunks.size()));
+        System.out.println();
 
-            try {
-                ChunkSummary summary = summarizeChunk(chunk);
-                summaries.add(summary);
-            } catch (Exception e) {
-                logger.error("Failed to summarize chunk {}, using default summary", chunk.getChunkId(), e);
-                summaries.add(createDefaultSummary(chunk.getChunkId(), chunk.getTitle(), chunk.getText()));
+        // Create progress bar
+        ProgressBarBuilder pbb = new ProgressBarBuilder()
+            .setTaskName("Summarizing")
+            .setInitialMax(chunks.size())
+            .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
+            .setUpdateIntervalMillis(100);
+
+        try (ProgressBar pb = pbb.build()) {
+            long startTime = System.currentTimeMillis();
+
+            for (int i = 0; i < chunks.size(); i++) {
+                TextChunk chunk = chunks.get(i);
+
+                // Update progress bar extra message
+                pb.setExtraMessage(String.format("Chunk %d/%d", i + 1, chunks.size()));
+
+                try {
+                    ChunkSummary summary = summarizeChunk(chunk);
+                    summaries.add(summary);
+
+                    // Step the progress bar
+                    pb.step();
+
+                    logger.debug("Successfully summarized chunk {}/{}", i + 1, chunks.size());
+                } catch (Exception e) {
+                    logger.error("Failed to summarize chunk {}, using default summary", chunk.getChunkId(), e);
+                    summaries.add(createDefaultSummary(chunk.getChunkId(), chunk.getTitle(), chunk.getText()));
+                    pb.step();
+                }
+
+                // Rate limiting - wait between API calls
+                if (i < chunks.size() - 1) {
+                    Thread.sleep(1000); // 1 second between calls
+                }
+
+                // Show intermediate progress every 5 chunks
+                if ((i + 1) % 5 == 0 || i == chunks.size() - 1) {
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    long estimatedTotal = (elapsed * chunks.size()) / (i + 1);
+                    long remaining = estimatedTotal - elapsed;
+
+                    logger.info("Progress: {}/{} chunks | Elapsed: {} | Remaining: ~{}",
+                        i + 1, chunks.size(),
+                        ConsoleColors.formatTime(elapsed),
+                        ConsoleColors.formatTime(remaining));
+                }
             }
 
-            // Rate limiting - wait between API calls
-            if (i < chunks.size() - 1) {
-                Thread.sleep(1000); // 1 second between calls
-            }
+            long totalTime = System.currentTimeMillis() - startTime;
+            System.out.println();
+            ConsoleColors.printSuccess(String.format(
+                "Summarized %d chunks in %s",
+                summaries.size(),
+                ConsoleColors.formatTime(totalTime)));
         }
 
         logger.info("Summarized {} chunks", summaries.size());
