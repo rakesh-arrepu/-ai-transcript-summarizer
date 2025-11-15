@@ -11,6 +11,11 @@ Convert lecture transcripts into comprehensive, exam-ready study materials autom
   - Flashcards (CSV format for Anki/Quizlet)
   - Practice questions (MCQ, short-answer, long-form)
   - Quick revision sheets (1-page summary)
+- **📊 Flows & Diagrams** *(Optional)*: Visualize multi-step processes extracted from lectures:
+  - Mermaid flowcharts (GitHub-renderable diagrams)
+  - ASCII art diagrams (terminal-friendly)
+  - Pipeline execution flow visualization
+  - Workflow reference tables
 - **Multi-File Processing**: Process multiple transcripts with configurable modes:
   - **Separate Mode**: Each transcript gets its own study materials (default)
   - **Combined Mode**: Merge all transcripts into one comprehensive guide
@@ -139,15 +144,20 @@ output/
 ├── consolidated/
 │   ├── Section-Fundamentals_master_notes.md
 │   └── Section-RAG_master_notes.md
-└── exam_materials/
-    ├── Section-Fundamentals/
-    │   ├── flashcards.csv
-    │   ├── practice_questions.md
-    │   └── quick_revision.md
-    └── Section-RAG/
-        ├── flashcards.csv
-        ├── practice_questions.md
-        └── quick_revision.md
+├── exam_materials/
+│   ├── Section-Fundamentals/
+│   │   ├── flashcards.csv
+│   │   ├── practice_questions.md
+│   │   └── quick_revision.md
+│   └── Section-RAG/
+│       ├── flashcards.csv
+│       ├── practice_questions.md
+│       └── quick_revision.md
+└── flows/                               # 📊 NEW - Visual diagrams & flowcharts
+    ├── flows_report.md
+    ├── pipeline_diagram.md
+    ├── workflow_photosynthesis.md
+    └── workflow_cellular_respiration.md
 ```
 
 **Combined Mode** (`MULTI_FILE_MODE=combined`):
@@ -162,10 +172,14 @@ output/
 │   └── ...
 ├── consolidated/
 │   └── master_notes.md              # Combined from all files
-└── exam_materials/
-    ├── flashcards.csv               # From all files
-    ├── practice_questions.md        # From all files
-    └── quick_revision.md            # From all files
+├── exam_materials/
+│   ├── flashcards.csv               # From all files
+│   ├── practice_questions.md        # From all files
+│   └── quick_revision.md            # From all files
+└── flows/                            # 📊 NEW - Visual diagrams & flowcharts
+    ├── flows_report.md
+    ├── pipeline_diagram.md
+    └── workflow_*.md
 ```
 
 ## 📚 Workflow

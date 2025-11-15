@@ -5,6 +5,7 @@ import com.transcript.pipeline.models.ChunkSummary;
 import com.transcript.pipeline.models.TextChunk;
 import com.transcript.pipeline.services.ChunkerService;
 import com.transcript.pipeline.services.ConsolidatorService;
+import com.transcript.pipeline.services.FlowsService;
 import com.transcript.pipeline.services.SummarizerService;
 import com.transcript.pipeline.util.FileService;
 import java.io.File;
@@ -90,11 +91,12 @@ public class App {
             System.out.println("3. Summarize chunks only");
             System.out.println("4. Consolidate to master notes");
             System.out.println("5. Generate exam materials (flashcards, practice questions)");
-            System.out.println("6. View pipeline status");
-            System.out.println("7. Settings");
-            System.out.println("8. Help");
+            System.out.println("6. Generate flows and diagrams (optional visualization)");
+            System.out.println("7. View pipeline status");
+            System.out.println("8. Settings");
+            System.out.println("9. Help");
             System.out.println("0. Exit");
-            System.out.print("\n👉 Choose an option (0-8): ");
+            System.out.print("\n👉 Choose an option (0-9): ");
 
             String choice = scanner.nextLine().trim();
 
@@ -115,12 +117,15 @@ public class App {
                     runExamMaterials(scanner);
                     break;
                 case "6":
-                    viewPipelineStatus();
+                    generateFlows(scanner);
                     break;
                 case "7":
-                    displaySettings();
+                    viewPipelineStatus();
                     break;
                 case "8":
+                    displaySettings();
+                    break;
+                case "9":
                     displayHelp();
                     break;
                 case "0":
@@ -231,9 +236,15 @@ public class App {
                 consolidatorService.saveQuickRevision(quickRevision, examDir + "/quick_revision.md");
                 System.out.println("✅ Quick revision sheet generated");
 
+                // Optional: Generate flows and diagrams
+                System.out.println("\n⏳ OPTIONAL: GENERATING FLOWS & DIAGRAMS");
+                consolidatorService.generateAndSaveFlows(summaries, outputDir);
+                System.out.println("✅ Flows diagrams generated");
+
                 System.out.println("\n✨ FILE COMPLETE: " + file.getName());
                 System.out.println("📁 Master notes: " + consolidatedPath);
                 System.out.println("📁 Exam materials: " + examDir + "/");
+                System.out.println("📊 Flows diagrams: " + outputDir + "/flows/");
 
             } catch (Exception e) {
                 System.out.println("❌ Error processing " + file.getName() + ": " + e.getMessage());
@@ -329,6 +340,12 @@ public class App {
             consolidatorService.saveQuickRevision(quickRevision, outputDir + "/exam_materials/quick_revision.md");
             System.out.println("✅ Quick revision sheet generated");
 
+            // Optional: Generate flows and diagrams
+            System.out.println("\n\n⏳ OPTIONAL: GENERATING FLOWS & DIAGRAMS");
+            System.out.println("═".repeat(60));
+            consolidatorService.generateAndSaveFlows(summaries, outputDir);
+            System.out.println("✅ Flows diagrams generated");
+
             System.out.println("\n\n✨ PIPELINE COMPLETE!");
             System.out.println("═".repeat(60));
             System.out.println("📁 Output directory: " + outputDir + "/");
@@ -336,6 +353,7 @@ public class App {
             System.out.println("📚 Quick revision: " + outputDir + "/exam_materials/quick_revision.md");
             System.out.println("🎯 Practice questions: " + outputDir + "/exam_materials/practice_questions.md");
             System.out.println("🎓 Flashcards: " + outputDir + "/exam_materials/flashcards.csv");
+            System.out.println("📊 Flows diagrams: " + outputDir + "/flows/");
 
         } catch (Exception e) {
             System.out.println("❌ Error in combined pipeline: " + e.getMessage());
@@ -499,6 +517,42 @@ public class App {
             System.out.println("🎓 Exam materials: " + examCount);
         } catch (Exception e) {
             System.out.println("❌ Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Generate flows and diagrams from existing summaries
+     */
+    private void generateFlows(Scanner scanner) {
+        try {
+            System.out.print("\n📁 Enter summaries directory: ");
+            String summariesDir = scanner.nextLine().trim();
+
+            System.out.println("\n⏳ Loading summaries...");
+            List<ChunkSummary> summaries = summarizerService.loadSummaries(summariesDir);
+            System.out.println("✅ Loaded " + summaries.size() + " summaries");
+
+            String outputDir = ConfigManager.get(ConfigManager.OUTPUT_DIR);
+            FileService.createDirectoryIfNotExists(outputDir + "/flows");
+
+            System.out.println("\n⏳ Generating flows and diagrams...");
+            System.out.println("📊 Creating workflow visualizations...");
+            System.out.println("📈 Generating flowcharts in Mermaid format...");
+            System.out.println("🎨 Creating ASCII diagrams...");
+
+            consolidatorService.generateAndSaveFlows(summaries, outputDir);
+
+            System.out.println("\n✨ FLOWS GENERATION COMPLETE!");
+            System.out.println("═".repeat(60));
+            System.out.println("📊 Flows directory: " + outputDir + "/flows/");
+            System.out.println("📄 Main report: " + outputDir + "/flows/flows_report.md");
+            System.out.println("📋 Pipeline diagram: " + outputDir + "/flows/pipeline_diagram.md");
+            System.out.println("🔍 Individual workflows: " + outputDir + "/flows/workflow_*.md");
+            System.out.println("\nTip: Open the flows_report.md file to view all diagrams!");
+
+        } catch (Exception e) {
+            System.out.println("❌ Error: " + e.getMessage());
+            logger.error("Flows generation error", e);
         }
     }
 
